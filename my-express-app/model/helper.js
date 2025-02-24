@@ -1,5 +1,5 @@
 require("dotenv").config();
-const mysql = require("mysql");
+const mysql = require("mysql2");
 
 module.exports = async function db(query) {
   const results = {
@@ -16,7 +16,7 @@ module.exports = async function db(query) {
       host: DB_HOST || "127.0.0.1",
       user: DB_USER || "root",
       password: DB_PASS,
-      database: DB_NAME || "database",
+      database: DB_NAME || "fork_it",
       multipleStatements: true
     });
 

@@ -1,18 +1,29 @@
 --
--- Drop Tables
+-- Drop old tables (if exist)
 --
 
 SET foreign_key_checks = 0;
-DROP TABLE if exists students;
+DROP TABLE IF EXISTS meal_calendar;
+DROP TABLE IF EXISTS grocery_list;
 SET foreign_key_checks = 1;
 
 --
--- Create Tables
+-- Create meal calendar table
 --
+CREATE TABLE meal_calendar (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recipe_id INT NOT NULL,
+    day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+    meal_type ENUM('Breakfast', 'Lunch', 'Dinner') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE TABLE students(
-    id INT NOT NULL AUTO_INCREMENT, 
-    firstname VARCHAR(40) not null, 
-    lastname VARCHAR(40) not null, 
-    PRIMARY KEY (id)
-    );
+--
+-- Create grocery list table
+--
+CREATE TABLE grocery_list (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ingredient_name VARCHAR(255) NOT NULL UNIQUE,
+    quantity INT NOT NULL DEFAULT 1,
+    completed BOOLEAN DEFAULT FALSE
+);

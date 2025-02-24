@@ -2,10 +2,12 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const cors = require('cors');  // add at the top 
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const cors = require('cors');  // add at the top 
+const recipesRouter = require('./routes/recipes'); // import recipes route
+const databaseRoutes = require('./routes/databaseRoutes');
  
 var app = express();
 
@@ -19,5 +21,7 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/api/recipes', recipesRouter); // Register the recipes API
+app.use('/api', databaseRoutes);
 
 module.exports = app;

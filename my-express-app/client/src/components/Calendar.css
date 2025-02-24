@@ -1,0 +1,97 @@
+.calendar-container h2 {
+    font-size: 30px;
+    font-weight: bold;
+    color: #2e4248;
+    margin-bottom: 15px;
+    text-align: center;
+    padding: 10px 40px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.4); 
+}
+
+
+.table-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+
+th {
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    background: #45ab98; 
+    color: white;
+}
+
+/* days Column */
+td:first-child {
+    background: #1e2530; 
+    color: white;
+    font-weight: bold;
+    padding: 15px;
+    text-align: center;
+    width: 150px;
+    opacity: 0.5;
+}
+
+/* meal Cells */
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    opacity: 0.8;
+}
+
+
+.meal-cell div {
+    background: rgba(234, 230, 222);
+    color: #2e4248;
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    margin: 5px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+
+.calendar-table tbody td:nth-child(2) div { background: #f8d7da; } 
+.calendar-table tbody td:nth-child(3) div { background: #d4edda; } 
+.calendar-table tbody td:nth-child(4) div { background: #e1ac6f; } 
+
+.calendar-table tbody tr:nth-child(odd) { background-color: #f1eee7; } 
+.calendar-table tbody tr:nth-child(even) { background-color: #e2e3e5;} 
+
+.delete-btn {
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+/* background per meal */
+.meal-cell:nth-child(2) div { background: rgba(255, 200, 200, 0.6); } 
+.meal-cell:nth-child(3) div { background: rgba(200, 255, 200, 0.6); } 
+.meal-cell:nth-child(4) div { background: rgba(200, 200, 255, 0.6); } 

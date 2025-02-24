@@ -1,31 +1,48 @@
 require("dotenv").config();
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const fs = require("fs");
 
-const DB_HOST = process.env.DB_HOST;
-const DB_USER = process.env.DB_USER;
-const DB_PASS = process.env.DB_PASS;
-const DB_NAME = process.env.DB_NAME;
+const DB_HOST = process.env.DB_HOST || "127.0.0.1";
+const DB_USER = process.env.DB_USER || "root";
+const DB_PASS = process.env.DB_PASS || "";
+const DB_NAME = process.env.DB_NAME || "fork_it";
 
-const con = mysql.createConnection({
-  host: DB_HOST || "127.0.0.1",
-  user: DB_USER || "root",
+// creación de la conexión
+const connectDB = mysql.createConnection({
+  host: DB_HOST,
+  user: DB_USER,
   password: DB_PASS,
-  database: DB_NAME || "facebook",
+  database: DB_NAME,
   multipleStatements: true
 });
 
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected!");
+// verificación de la conexión
+connectDB.connect(function (err) {
+  if (err) {
+    console.error("Error connecting to MySQL:", err.message);
+    return;
+  }
+  console.log("Connected to MySQL!");
 
-  let sql = fs.readFileSync(__dirname + "/init_db.sql").toString();
-  con.query(sql, function(err, result) {
-    if (err) throw err;
-    console.log("Table creation `students` was successful!");
+  // comprobar si la tabla `calendar` ya existe para evitar reinicializar la base de datos
+  connectDB.query("SHOW TABLES LIKE 'calendar';", function (err, results) {
+    if (err) {
+      console.error("Error checking tables:", err.message);
+      return;
+    }
 
-    console.log("Closing...");
+    if (results.length === 0) {
+      console.log("No tables found, initializing database...");
+      let sql = fs.readFileSync(__dirname + "/init_db.sql").toString();
+      connectDB.query(sql, function (err) {
+        if (err) console.error("Error initializing database:", err.message);
+        else console.log("Database initialized successfully!");
+      });
+    } else {
+      console.log("Database already set up, skipping initialization.");
+    }
   });
-
-  con.end();
 });
+
+
+module.exports = connectDB;
