@@ -11,8 +11,8 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem }) => {
         <div className="grocery-list-container">
             <h2>Grocery List</h2>
             <ul className="grocery-list">
-                {ingredients.map((item, index) => (
-                    <li key={index} className={`grocery-item ${item.completed ? "completed" : ""}`}>
+                {ingredients.map((item) => (
+                    <li key={item.groceryID} className={`grocery-item ${item.completed ? "completed" : ""}`}>
                         {/* toggle completion */}
                         <input 
                             type="checkbox" 
@@ -23,7 +23,7 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem }) => {
                         <span>{item.item_name}</span>
                         {/* delete button */}
                         <button 
-                            onClick={() => onDeleteItem(item.item_name)}
+                            onClick={() => onDeleteItem(item.groceryID)}
                             className="delete-btn"
                         >
                             ·

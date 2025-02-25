@@ -30,11 +30,16 @@ const initialMealPlan = {
       fetchCalendar();
     }, []);
   
+    // load grocery list on app start
+    useEffect(() => {
+      fetchGroceryList();
+    }, []);
+
     const fetchCalendar = () => {
       fetch("http://localhost:3001/api/calendar")
         .then((res) => res.json())
         .then((data) => {
-            //console.log("📅 Raw Calendar Data:", data); 
+            console.log("📅 Raw Calendar Data:", data); 
           if (Array.isArray(data) && data.length > 0) {
             setCalendar(data);
           } else {
@@ -43,65 +48,96 @@ const initialMealPlan = {
         })
         .catch((error) => console.error("Error fetching calendar:", error));
   };
+
+      // fetch grocery list from the database
+      const fetchGroceryList = () => {
+        fetch("http://localhost:3001/api/grocery-list")
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Grocery List:", data);
+            if (Array.isArray(data)) {
+              setGroceryList(data);
+            } else {
+              console.error( data);
+              setGroceryList([]);
+            }
+          })
+          .catch((error) => console.error("Error fetching grocery list:", error));
+      };  
   
     // add a meal & update UI instantly
-    const handleAddMeal = (day, meal_type, recipe) => {
-      fetch("http://localhost:3001/api/calendar", {
+    //to add to calendar, need day, meal_type, meal_name & meal_img_url
+    const handleAddMeal = async (day, meal_type, recipe, ingredients) => {
+      try {
+      const results = await fetch("http://localhost:3001/api/calendar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ day, meal_type, meal_name: recipe.title }),
+        body: JSON.stringify({ day, meal_type, meal_name: recipe.title, meal_img_url: recipe.image, dbID: recipe.id  }),
       })
-        .then((res) => res.json())
-        .then(() => {
-          // update calendar instantly
-          setCalendar((prevCalendar) => [
-            ...prevCalendar,
-            { day, meal_type, meal_name: recipe.title },
-          ]);
-          setShowMealForm(false);
-        })
-        .catch((error) => console.error("Error adding meal:", error));
-    };
-  
-    // fetch grocery list from the database
-    const fetchGroceryList = () => {
-      fetch("http://localhost:3001/api/grocery-list")
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Grocery List:", data);
-          if (Array.isArray(data)) {
-            setGroceryList(data);
-          } else {
-            console.error( data);
-            setGroceryList([]);
-          }
-        })
-        .catch((error) => console.error("Error fetching grocery list:", error));
-    };
-  
-    // load grocery list on app start
-    useEffect(() => {
-      fetchGroceryList();
-    }, []);
-  
-    // add ingredients to the grocery list
-    const handleAddGroceryList = (ingredients) => {
+      const response = await results.json();
+      const mealID = response.result[0].insertId;
+      const newCalendar = response.updatedCalendar;
+      console.log("Meal ID is", mealID, " and newCalendar is", newCalendar);
+      // const quantSplitIngredients = ingredients.map((item) => {
+      //   const quantitySplit = item.quantity.split(" ");
+      //   const quantity_num = quantitySplit[0];
+      //   const quantity_measure = quantitySplit[1];
+      //   return {name: item.name, quantity_num: quantity_num, quantity_measure: quantity_measure}
+      //   }
+      // )
+
       const promises = ingredients.map((item) =>
         fetch("http://localhost:3001/api/grocery-list", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ item_name: item.name, quantity: 1 }),
+          body: JSON.stringify({ mealID: mealID, item_name: item.name, quantity: item.quantity }),
         }).catch((error) =>
           console.error(`Error saving ingredient ${item.name}:`, error)
         )
       );
-  
       Promise.all(promises)
-        .then(() => fetchGroceryList()) // Refresh grocery list
-        .catch((error) =>
-          console.error("Error updating grocery list:", error)
-        );
+      .then(() => {
+        setCalendar(newCalendar)
+        fetchGroceryList();
+        setShowMealForm(false)}) // Refresh grocery list
+      .catch((error) =>
+        console.error("Error updating grocery list:", error)
+      );
+    }
+      catch(error) { console.error("Error adding meal:", error)};
     };
+  
+
+
+  
+    // add ingredients to the grocery list
+    //to add to grocery_list, need name, quantity_num, quantity_measure & mealID
+    // const addGroceryList = async (ingredients) => {
+    //   const updatedIngredients = ingredients.map((item) => {
+    //     const quantitySplit = item.quantity.split(" ");
+    //     const quantity_num = quantitySplit[0];
+    //     const quantity_measure = quantitySplit[1];
+    //     return { item_name: item.name, quantity_num: quantity_num, quantity_measure: quantity_measure}})
+    //     await fetch("")
+
+
+
+      // const promises = ingredients.map((item) =>
+      //   fetch("http://localhost:3001/api/grocery-list", {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify({ item_name: item.name, quantity_num:  }),
+      //   }).catch((error) =>
+      //     console.error(`Error saving ingredient ${item.name}:`, error)
+      //   )
+      // );
+  
+    //   Promise.all(promises)
+    //     .then(() => fetchGroceryList()) // Refresh grocery list
+    //     .catch((error) =>
+    //       console.error("Error updating grocery list:", error)
+    //     );
+    // };
   
     // toggle grocery item completion
     const handleToggleComplete = (index) => {
@@ -129,13 +165,13 @@ const initialMealPlan = {
     };
 
     // function to delete a grocery item
-const handleDeleteGroceryItem = (itemName) => {
-  fetch(`http://localhost:3001/api/grocery-list/${itemName}`, {
+const handleDeleteGroceryItem = (groceryID) => {
+  fetch(`http://localhost:3001/api/grocery-list/${groceryID}`, {
       method: "DELETE",
   })
   .then(res => res.json())
   .then(() => {
-      setGroceryList(prevList => prevList.filter(item => item.item_name !== itemName));
+      setGroceryList(prevList => prevList.filter(item => item.groceryID !== groceryID));
   })
   .catch(error => console.error("Error deleting grocery item:", error));
 };
@@ -196,7 +232,6 @@ const handleDeleteMeal = (mealId) => {
               selectedRecipe={selectedRecipe}
               onClose={() => setShowMealForm(false)}
               onAddMeal={handleAddMeal}
-              onAddToGroceryList={handleAddGroceryList}
             />
           </div>
         </div>

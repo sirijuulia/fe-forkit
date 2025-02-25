@@ -3,27 +3,30 @@
 --
 
 SET foreign_key_checks = 0;
-DROP TABLE IF EXISTS meal_calendar;
+DROP TABLE IF EXISTS calendar;
 DROP TABLE IF EXISTS grocery_list;
 SET foreign_key_checks = 1;
 
 --
 -- Create meal calendar table
 --
-CREATE TABLE meal_calendar (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    recipe_id INT NOT NULL,
+CREATE TABLE calendar (
+    mealID INT AUTO_INCREMENT PRIMARY KEY,
+    dbID INT NOT NULL,  -- Unique ID for each meal entry
     day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
     meal_type ENUM('Breakfast', 'Lunch', 'Dinner') NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    meal_img_url VARCHAR(255),
+    meal_name VARCHAR(255) NOT NULL
 );
 
 --
 -- Create grocery list table
---
+-- 
 CREATE TABLE grocery_list (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ingredient_name VARCHAR(255) NOT NULL UNIQUE,
-    quantity INT NOT NULL DEFAULT 1,
-    completed BOOLEAN DEFAULT FALSE
+    groceryID INT AUTO_INCREMENT PRIMARY KEY,    
+    item_name VARCHAR(255) NOT NULL,     
+    quantity VARCHAR(255) DEFAULT "1",              
+    completed BOOLEAN DEFAULT false, 
+    mealID INT NOT NULL,
+    FOREIGN KEY (mealID) REFERENCES calendar(mealID) ON DELETE cascade     
 );

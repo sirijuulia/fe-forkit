@@ -4,7 +4,7 @@ import "./MealForm.css";
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const mealTypes = ["Breakfast", "Lunch", "Dinner"];
 
-const MealForm = ({ selectedRecipe, onClose, onAddMeal, onAddToGroceryList }) => {
+const MealForm = ({ selectedRecipe, onClose, onAddMeal }) => {
   const [selectedDay, setSelectedDay] = useState(daysOfWeek[0]); // Monday
   const [selectedMealType, setSelectedMealType] = useState(mealTypes[0]); //Breakfast
   const [ingredients, setIngredients] = useState([]);
@@ -19,6 +19,7 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal, onAddToGroceryList }) =>
       try {
         const response = await fetch(`http://localhost:3001/api/recipes/${selectedRecipe.id}`);
         const data = await response.json();
+        console.log(data)
 
         if (data) {
           setIngredients(data.ingredients || []);
@@ -37,24 +38,25 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal, onAddToGroceryList }) =>
     if (!selectedRecipe) return;
 
     // Add meal to calendar
-    onAddMeal(selectedDay, selectedMealType, selectedRecipe);
-    onAddToGroceryList(ingredients);
+    //to add to calendar, need day, meal_type, meal_name & meal_img_url
+    onAddMeal(selectedDay, selectedMealType, selectedRecipe, ingredients);
 
     // Save to database
-    fetch("http://localhost:3001/api/calendar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        day: selectedDay,
-        meal_type: selectedMealType,
-        meal_name: selectedRecipe.title
-      }),
-    })
-    .then(response => response.json())
-    .then(data => console.log("Meal saved:", data))
-    .catch(error => console.error("Error saving meal:", error));
+    // fetch("http://localhost:3001/api/calendar", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({
+    //     day: selectedDay,
+    //     meal_type: selectedMealType,
+    //     meal_name: selectedRecipe.title,
+    //     meal_img_url: selectedRecipe.image
+    //   }),
+    // })
+    // .then(response => response.json())
+    // .then(data => console.log("Meal saved:", data))
+    // .catch(error => console.error("Error saving meal:", error));
 
-    onClose(); // Close the popup after saving
+    // onClose(); // Close the popup after saving
   };
 
   return (

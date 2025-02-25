@@ -12,13 +12,13 @@ const Calendar = ({ mealPlan, onDeleteMeal }) => {
     }
  */
     // Organize the data
-    const formattedCalendar = {};
-    mealPlan.forEach((entry) => {
-        if (!formattedCalendar[entry.day]) {
-            formattedCalendar[entry.day] = {};
-        }
-        formattedCalendar[entry.day][entry.meal_type] = entry.meal_name;
-    });
+    // const formattedCalendar = {};
+    // mealPlan.forEach((entry) => {
+    //     if (!formattedCalendar[entry.day]) {
+    //         formattedCalendar[entry.day] = {};
+    //     }
+    //     formattedCalendar[entry.day][entry.meal_type] = entry.meal_name;
+    // });
 
     return (
         <div className="calendar-container">
@@ -41,10 +41,10 @@ const Calendar = ({ mealPlan, onDeleteMeal }) => {
                                     {mealPlan
                                         .filter(entry => entry.day === day && entry.meal_type === meal)
                                         .map(entry => (
-                                            <div key={entry.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                            <div key={entry.mealID} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                                 <span>{entry.meal_name}</span>
                                                 <button 
-                                                    onClick={() => onDeleteMeal(entry.id)}
+                                                    onClick={() => onDeleteMeal(entry.mealID)}
                                                     style={{ border: "none", cursor: "pointer", padding: "0.3px" }}
                                                 >
                                                     ·
