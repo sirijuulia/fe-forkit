@@ -78,6 +78,7 @@ const initialMealPlan = {
       const mealID = response.result[0].insertId;
       const newCalendar = response.updatedCalendar;
       console.log("Meal ID is", mealID, " and newCalendar is", newCalendar);
+      //WORKING OUT HOW TO GET QUANTITIES AS NUM + MEASURE - DIDN'T WORK YET
       // const quantSplitIngredients = ingredients.map((item) => {
       //   const quantitySplit = item.quantity.split(" ");
       //   const quantity_num = quantitySplit[0];
@@ -107,62 +108,37 @@ const initialMealPlan = {
       catch(error) { console.error("Error adding meal:", error)};
     };
   
-
-
-  
-    // add ingredients to the grocery list
-    //to add to grocery_list, need name, quantity_num, quantity_measure & mealID
-    // const addGroceryList = async (ingredients) => {
-    //   const updatedIngredients = ingredients.map((item) => {
-    //     const quantitySplit = item.quantity.split(" ");
-    //     const quantity_num = quantitySplit[0];
-    //     const quantity_measure = quantitySplit[1];
-    //     return { item_name: item.name, quantity_num: quantity_num, quantity_measure: quantity_measure}})
-    //     await fetch("")
-
-
-
-      // const promises = ingredients.map((item) =>
-      //   fetch("http://localhost:3001/api/grocery-list", {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({ item_name: item.name, quantity_num:  }),
-      //   }).catch((error) =>
-      //     console.error(`Error saving ingredient ${item.name}:`, error)
-      //   )
-      // );
-  
-    //   Promise.all(promises)
-    //     .then(() => fetchGroceryList()) // Refresh grocery list
-    //     .catch((error) =>
-    //       console.error("Error updating grocery list:", error)
-    //     );
-    // };
-  
     // toggle grocery item completion
-    const handleToggleComplete = (index) => {
-      setGroceryList((prev) => {
-        const updatedList = [...prev];
-        updatedList[index] = {
-          ...updatedList[index],
-          completed: !updatedList[index].completed,
-        };
+    const handleToggleComplete = (id) => {
+      const itemToToggle = groceryList.filter((item) => item.groceryID === id);
+      const newState = !itemToToggle[0].completed; 
+      console.log(newState);
+      fetch(`http://localhost:3001/api/grocery-list/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: newState }),
+      })
+        .then(() => fetchGroceryList())
+        .catch((error) =>
+          console.error("Error updating grocery list:", error)
+        );
+      }
+
+
+
+      // setGroceryList((prev) => {
+      //   const updatedList = [...prev];
+      //   updatedList[id] = {
+      //     ...updatedList[id],
+      //     completed: !updatedList[id].completed,
+      //   };
   
-        const updatedItem = updatedList[index];
+      //   const updatedItem = updatedList[id];
   
-        fetch(`http://localhost:3001/api/grocery-list/${updatedItem.item_name}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ completed: updatedItem.completed }),
-        })
-          .then(() => fetchGroceryList())
-          .catch((error) =>
-            console.error("Error updating grocery list:", error)
-          );
+        
   
-        return updatedList;
-      });
-    };
+        // return updatedList;
+
 
     // function to delete a grocery item
 const handleDeleteGroceryItem = (groceryID) => {
@@ -171,7 +147,7 @@ const handleDeleteGroceryItem = (groceryID) => {
   })
   .then(res => res.json())
   .then(() => {
-      setGroceryList(prevList => prevList.filter(item => item.groceryID !== groceryID));
+    fetchGroceryList();
   })
   .catch(error => console.error("Error deleting grocery item:", error));
 };
@@ -179,13 +155,16 @@ const handleDeleteGroceryItem = (groceryID) => {
 const handleDeleteMeal = (mealId) => {
   fetch(`http://localhost:3001/api/calendar/${mealId}`, {
       method: "DELETE",
-  })
-  .then(res => res.json())
-  .then(() => {
+    })
+    .then(res => res.json())
+    .then(() => {
       fetch("http://localhost:3001/api/calendar")  // re-fetch calendar after deleting
           .then(res => res.json())
           .then(updatedData => setCalendar(updatedData));
-  })
+      })
+      .then(() => {
+        fetchGroceryList()
+      })
   .catch(error => console.error("Error deleting meal:", error));
 };
 

@@ -17,7 +17,7 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem }) => {
                         <input 
                             type="checkbox" 
                             checked={item.completed} 
-                            onChange={() => onToggleComplete(index)}
+                            onChange={() => onToggleComplete(item.groceryID)}
                         />
                         {/* show name*/}
                         <span>{item.item_name}</span>
