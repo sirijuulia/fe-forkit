@@ -4,6 +4,7 @@ import './App.css'
 import RecipeSearch from './components/RecipeSearch';
 import MealForm from './components/MealForm';
 import GroceryList from './components/GroceryList';
+import ShoppingList from './components/ShoppingList';
 
 /* 
 const initialMealPlan = {
@@ -22,6 +23,7 @@ const initialMealPlan = {
     const [showPopup, setShowPopup] = useState(false);
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const [showMealForm, setShowMealForm] = useState(false);
+    const [showShoppingList, setShowShoppingList] = useState(false);
     const [groceryList, setGroceryList] = useState([]);
     const [viewMode, setViewMode] = useState("list");
   
@@ -39,7 +41,7 @@ const initialMealPlan = {
       fetch("http://localhost:3001/api/calendar")
         .then((res) => res.json())
         .then((data) => {
-            console.log("📅 Raw Calendar Data:", data); 
+            // console.log("📅 Raw Calendar Data:", data); 
           if (Array.isArray(data) && data.length > 0) {
             setCalendar(data);
           } else {
@@ -54,7 +56,6 @@ const initialMealPlan = {
         fetch("http://localhost:3001/api/grocery-list")
           .then((response) => response.json())
           .then((data) => {
-            console.log("Grocery List:", data);
             if (Array.isArray(data)) {
               setGroceryList(data);
             } else {
@@ -77,7 +78,7 @@ const initialMealPlan = {
       const response = await results.json();
       const mealID = response.result[0].insertId;
       const newCalendar = response.updatedCalendar;
-      console.log("Meal ID is", mealID, " and newCalendar is", newCalendar);
+
       //WORKING OUT HOW TO GET QUANTITIES AS NUM + MEASURE - DIDN'T WORK YET
       // const quantSplitIngredients = ingredients.map((item) => {
       //   const quantitySplit = item.quantity.split(" ");
@@ -99,8 +100,8 @@ const initialMealPlan = {
       Promise.all(promises)
       .then(() => {
         setCalendar(newCalendar)
-        fetchGroceryList();
-        setShowMealForm(false)}) // Refresh grocery list
+        fetchGroceryList(); // Refresh grocery list
+        setShowMealForm(false)}) 
       .catch((error) =>
         console.error("Error updating grocery list:", error)
       );
@@ -124,19 +125,13 @@ const initialMealPlan = {
         );
       }
 
-
-
       // setGroceryList((prev) => {
       //   const updatedList = [...prev];
       //   updatedList[id] = {
       //     ...updatedList[id],
       //     completed: !updatedList[id].completed,
       //   };
-  
       //   const updatedItem = updatedList[id];
-  
-        
-  
         // return updatedList;
 
 
@@ -176,9 +171,11 @@ const handleDeleteMeal = (mealId) => {
           <button className="add-recipe-btn" onClick={() => setShowPopup(true)}>
             Search Recipes
           </button>
+          <button onClick={() => setShowShoppingList(true)}>Show shopping list!</button>
         </header>
   
         <main className="main-content">
+          
           <div>
             <Calendar mealPlan={calendar} onDeleteMeal={handleDeleteMeal}/>
           </div>
@@ -215,6 +212,15 @@ const handleDeleteMeal = (mealId) => {
           </div>
         </div>
       )}
+
+      {showShoppingList && (
+          <ShoppingList
+          ingredients={groceryList}
+          onToggleComplete={handleToggleComplete}
+          onDeleteItem={handleDeleteGroceryItem}
+          onClose={() => setShowShoppingList(false)}
+          />
+        )} 
       </div>
     );
   }

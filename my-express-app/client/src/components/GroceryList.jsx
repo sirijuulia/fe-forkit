@@ -7,11 +7,19 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem }) => {
         return <p>Error loading grocery list. Please try again.</p>;
     }
 
+    
+
     return (
         <div className="grocery-list-container">
             <h2>Grocery List</h2>
             <ul className="grocery-list">
-                {ingredients.map((item) => (
+                {ingredients.sort(function (a, b) {
+                    if (a.item_name <= b.item_name) {
+                        return -1
+                    } else {
+                        return 1
+                    }}
+                ).map((item) => (
                     <li key={item.groceryID} className={`grocery-item ${item.completed ? "completed" : ""}`}>
                         {/* toggle completion */}
                         <input 

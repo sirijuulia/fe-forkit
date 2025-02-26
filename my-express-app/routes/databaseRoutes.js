@@ -93,7 +93,10 @@ router.get("/grocery-list", async (req, res) => {
   try {
     const [result] = await connectDB
       .promise()
-      .execute("SELECT * FROM grocery_list");
+      .execute(
+        "SELECT g.*, c.meal_name, c.meal_img_url, c.day FROM grocery_list AS g LEFT JOIN calendar AS c on g.mealID=c.mealID"
+      );
+    //Select a.*, u.username FROM actions AS a LEFT JOIN users AS u on a.userID=u.userID
 
     res.status(200).json(result);
   } catch (error) {
