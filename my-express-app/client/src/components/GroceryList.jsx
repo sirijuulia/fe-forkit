@@ -1,37 +1,39 @@
 import React from "react";
 import "./GroceryList.css"
 
-const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem }) => {
+const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem, onShowShoppingList }) => {
     if (!Array.isArray(ingredients)) {
         console.error("GroceryList received a non-array value:", ingredients);
         return <p>Error loading grocery list. Please try again.</p>;
     }
 
-    
+    const uniqueIngredients = ingredients.filter((obj, index, self) => {
+        return index === self.findIndex((i) => i.item_name === obj.item_name);})
 
     return (
         <div className="grocery-list-container">
+            <button onClick={onShowShoppingList} className="shopping-list-button"></button>
             <h2>Grocery List</h2>
             <ul className="grocery-list">
-                {ingredients.sort(function (a, b) {
+                {uniqueIngredients.sort(function (a, b) {
                     if (a.item_name <= b.item_name) {
                         return -1
                     } else {
                         return 1
                     }}
                 ).map((item) => (
-                    <li key={item.groceryID} className={`grocery-item ${item.completed ? "completed" : ""}`}>
+                    <li key={item.item_name} className={`grocery-item ${item.completed ? "completed" : ""}`}>
                         {/* toggle completion */}
                         <input 
                             type="checkbox" 
                             checked={item.completed} 
-                            onChange={() => onToggleComplete(item.groceryID)}
+                            onChange={() => onToggleComplete(item.item_name)}
                         />
                         {/* show name*/}
                         <span>{item.item_name}</span>
                         {/* delete button */}
                         <button 
-                            onClick={() => onDeleteItem(item.groceryID)}
+                            onClick={() => onDeleteItem(item.item_name)}
                             className="delete-btn"
                         >
                             ·

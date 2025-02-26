@@ -110,11 +110,11 @@ const initialMealPlan = {
     };
   
     // toggle grocery item completion
-    const handleToggleComplete = (id) => {
-      const itemToToggle = groceryList.filter((item) => item.groceryID === id);
+    const handleToggleComplete = (item_name) => {
+      const itemToToggle = groceryList.filter((item) => item.item_name === item_name);
       const newState = !itemToToggle[0].completed; 
       console.log(newState);
-      fetch(`http://localhost:3001/api/grocery-list/${id}`, {
+      fetch(`http://localhost:3001/api/grocery-list/${item_name}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completed: newState }),
@@ -136,8 +136,8 @@ const initialMealPlan = {
 
 
     // function to delete a grocery item
-const handleDeleteGroceryItem = (groceryID) => {
-  fetch(`http://localhost:3001/api/grocery-list/${groceryID}`, {
+const handleDeleteGroceryItem = (item_name) => {
+  fetch(`http://localhost:3001/api/grocery-list/${item_name}`, {
       method: "DELETE",
   })
   .then(res => res.json())
@@ -171,7 +171,6 @@ const handleDeleteMeal = (mealId) => {
           <button className="add-recipe-btn" onClick={() => setShowPopup(true)}>
             Search Recipes
           </button>
-          <button onClick={() => setShowShoppingList(true)}>Show shopping list!</button>
         </header>
   
         <main className="main-content">
@@ -182,6 +181,7 @@ const handleDeleteMeal = (mealId) => {
   
           <div>
             <GroceryList
+              onShowShoppingList= { () => setShowShoppingList(true)}
               ingredients={groceryList}
               onToggleComplete={handleToggleComplete}
               viewMode={viewMode}

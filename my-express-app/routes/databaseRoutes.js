@@ -65,6 +65,7 @@ router.get("/calendar", async (req, res) => {
 router.post("/grocery-list", async (req, res) => {
   const { item_name, quantity, mealID } =
     req.body;
+  const name_lowercase = item_name.toLowerCase();
 
   try {
     const query = `
@@ -75,7 +76,7 @@ router.post("/grocery-list", async (req, res) => {
     await connectDB
       .promise()
       .execute(query, [
-        item_name,
+        name_lowercase,
         quantity,
         mealID,
       ]);
@@ -110,19 +111,19 @@ router.get("/grocery-list", async (req, res) => {
 // marcar un ítem como completado
 //to complete, need id
 router.put(
-  "/grocery-list/:id",
+  "/grocery-list/:item_name",
   async (req, res) => {
-    const groceryID = req.params.id;
+    const item_name = req.params.item_name;
     const { completed } = req.body;
     const completedValue = completed ? 1 : 0;
 
     try {
-      const query = `UPDATE grocery_list SET completed = ? WHERE groceryID = ?`;
+      const query = `UPDATE grocery_list SET completed = ? WHERE item_name = ?`;
       const [result] = await connectDB
         .promise()
         .execute(query, [
           completedValue,
-          groceryID,
+          item_name,
         ]);
 
       if (result.affectedRows === 0) {
@@ -168,17 +169,17 @@ router.delete(
 );
 
 // delete an item from the grocery list
-//need groceryID
+//need item_name
 router.delete(
-  "/grocery-list/:id",
+  "/grocery-list/:item_name",
   async (req, res) => {
-    const groceryID = req.params.id;
+    const item_name = req.params.item_name;
 
     try {
-      const query = `DELETE FROM grocery_list WHERE groceryID = ?`;
+      const query = `DELETE FROM grocery_list WHERE item_name = ?`;
       const [result] = await connectDB
         .promise()
-        .execute(query, [groceryID]);
+        .execute(query, [item_name]);
 
       if (result.affectedRows === 0) {
         return res.status(404).json({ error });

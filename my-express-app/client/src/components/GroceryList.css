@@ -1,4 +1,7 @@
 .grocery-list-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background: #b7ccc6;
     border-radius: 12px;
     width: 120%;
@@ -9,6 +12,23 @@
     font-family: 'Arial', sans-serif;
     max-height: 600px; 
     overflow-y: auto;
+}
+
+.shopping-list-button {
+    background-color: #e8f1ef;
+    align-self: last baseline;
+    width: 1.5rem;
+    aspect-ratio: 1/1;
+    margin: 0.5rem;
+    text-align: center;
+    background-image: url("../assets/icons8-expand-96.png");
+    background-size: cover;
+}
+
+.shopping-list-button:hover {
+    background-color: #53796e;
+    cursor: pointer;
+
 }
 
 .grocery-item {
@@ -34,7 +54,7 @@
 }
 
 
-.grocery-item.completed {
+.grocery-item .completed {
     background: #d3d3d3;
     color: #777;
     text-decoration: line-through;
