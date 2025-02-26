@@ -10,7 +10,7 @@
     display: flex;
 }
 
-.download-btn {
+.list-btn {
     position: relative;
     top: -5px;
     width: 1.5rem;
@@ -18,9 +18,25 @@
     border: none;
     background-color: white;
     cursor: pointer;
-    background-image: url("../assets/icons8-download-96.png");
     background-size: cover;
+    margin: 0 1rem;
+}
 
+.list-btn:hover {
+    opacity: 70%;
+}
+
+.list-btn:active {
+    top: -3px;
+    left: 2px;
+}
+
+.download-btn {
+    background-image: url("../assets/icons8-download-96.png");
+}
+
+.clipboard-btn {
+    background-image: url("../assets/icons8-clipboard-96.png");
 }
 
 .shopping-list-ingredient {
@@ -109,9 +125,11 @@
     background: #d3d3d3;
     color: #777;
     text-decoration: line-through;
-    margin-bottom: 0;
 }
 
+.shopping-list-section .completed {
+    margin-bottom: 0;
+}
 
 .shopping-item .delete-btn {
     color: white;

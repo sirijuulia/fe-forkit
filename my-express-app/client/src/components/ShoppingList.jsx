@@ -21,12 +21,23 @@ export default function ShoppingList({ ingredients = [], onToggleComplete, onDel
 const uniqueIngredients = ingredients.filter((obj, index, self) => {
   return index === self.findIndex((i) => i.item_name === obj.item_name);})
 
+const writeToClipboard = async () => {
+  const ingredientList = ingredients.map((ingredient) =>  `- ${ingredient.item_name} ${ingredient.quantity}\n`)
+  const ingredientString = ingredientList.sort().join("")
+  try {
+    await navigator.clipboard.writeText(ingredientString);
+  } catch (error) {
+    console.error(error.message)
+  }
+}
+
   return (
         <div className="popup-overlay">
           <div className="popup">
             <div className='shopping-list-header'>
-            <button className="close-btn" onClick={onClose}>×</button>
-            <button className='download-btn' onClick={() => generatePDF(targetRef, options)}></button>
+            <button className='list-btn download-btn' title="download" onClick={() => generatePDF(targetRef, options)}></button>
+            <button className='list-btn clipboard-btn' title="copy to clipboard" onClick={writeToClipboard}></button>
+            <button className="close-btn" title="close" onClick={onClose}>×</button>
             </div>
           <div ref={targetRef}>
           <h2 className='shoppinglist-title'>Time to go shopping!</h2>
@@ -38,7 +49,7 @@ const uniqueIngredients = ingredients.filter((obj, index, self) => {
                         return 1
                     }}
                 ).map((ingredient) => (
-                <div key={ingredient.item_name}>
+                <div key={ingredient.item_name} className='shopping-list-section'>
                   <li   className={`shopping-list-ingredient ${ingredient.completed ? "completed" : ""}`}>
                         {/* toggle completion */}
                         <input 
