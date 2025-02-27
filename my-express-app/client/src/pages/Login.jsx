@@ -30,9 +30,11 @@ export default function Login() {
                 method:"POST",
                 data: credentials
             })
-            alert(data.message)          
+            if (data.message === "Registration successful") {
+                setHaveAccount(true); }
             setCredentials({username: "", password: ""})
-            setHaveAccount(true)} catch(e) {
+            alert(data.message)
+        } catch(e) {
                 console.log(e)
             }
         } else {

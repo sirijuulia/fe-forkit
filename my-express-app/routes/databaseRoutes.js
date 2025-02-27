@@ -20,25 +20,17 @@ router.post(
       meal_img_url,
     } = req.body;
 
-    console.log(
-      "Logging from router",
-      userID,
-      day,
-      meal_type,
-      meal_name,
-      meal_img_url,
-      dbID
-    );
-
     try {
-      const query = `
+      const putQuery = `
             INSERT INTO calendar (userID, day, dbID, meal_type, meal_name, meal_img_url) 
             VALUES (?, ?, ?, ?, ?, ?)`;
+      const getQuery =
+        "SELECT * FROM calendar WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
 
       const result = await connectDB
         .promise()
-        .execute(query, [
-          userID,
+        .execute(putQuery, [
+          req.user_id,
           day,
           dbID,
           meal_type,
@@ -47,9 +39,7 @@ router.post(
         ]);
       const [updatedCalendar] = await connectDB
         .promise()
-        .execute(
-          "SELECT * FROM calendar ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')"
-        );
+        .execute(getQuery, [req.user_id]);
       Promise.all([result, updatedCalendar]).then(
         (values) =>
           res.status(200).send({
@@ -63,18 +53,17 @@ router.post(
     }
   }
 );
-
 // obtener el calendario completo
 router.get(
   "/calendar",
   userMustBeLoggedIn,
   async (req, res) => {
+    const query =
+      "SELECT * FROM calendar WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
     try {
       const [result] = await connectDB
         .promise()
-        .execute(
-          "SELECT * FROM calendar ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')"
-        );
+        .execute(query, [req.user_id]);
       res.status(200).json(result);
     } catch (error) {
       console.error("Database error:", error);
@@ -97,7 +86,6 @@ router.post(
     } = req.body;
     const name_lowercase =
       item_name.toLowerCase();
-
     try {
       const query = `
             INSERT INTO grocery_list (userID, item_name, quantity, mealID, completed) 
@@ -107,7 +95,7 @@ router.post(
       await connectDB
         .promise()
         .execute(query, [
-          userID,
+          req.user_id,
           name_lowercase,
           quantity,
           mealID,
@@ -127,13 +115,12 @@ router.get(
   "/grocery-list",
   userMustBeLoggedIn,
   async (req, res) => {
+    const query =
+      "SELECT g.*, c.meal_name, c.meal_img_url, c.day FROM grocery_list AS g LEFT JOIN calendar AS c on g.mealID=c.mealID WHERE g.userID = ?";
     try {
       const [result] = await connectDB
         .promise()
-        .execute(
-          "SELECT g.*, c.meal_name, c.meal_img_url, c.day FROM grocery_list AS g LEFT JOIN calendar AS c on g.mealID=c.mealID"
-        );
-
+        .execute(query, [req.user_id]);
       res.status(200).json(result);
     } catch (error) {
       console.error("Database error:", error);

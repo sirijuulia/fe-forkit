@@ -17,18 +17,13 @@ import axios from 'axios';
     const [showMealForm, setShowMealForm] = useState(false);
     const [showShoppingList, setShowShoppingList] = useState(false);
     const [groceryList, setGroceryList] = useState([]);
-    const [viewMode, setViewMode] = useState("list");
     const [isLoggedIn, setIsLoggedIn] = useState( !!localStorage.getItem("token"));
-    const [userID, setUserID] = useState(5);
+    const [userID, setUserID] = useState(localStorage.getItem("userID"));
     const authObj = {isLoggedIn, login, logout, userID}
   
-    // fetch calendar on load
+    // fetch calendar & grocery list on load
     useEffect(() => {
       fetchCalendar();
-    }, []);
-  
-    // load grocery list on app start
-    useEffect(() => {
       fetchGroceryList();
     }, []);
 
@@ -38,18 +33,23 @@ import axios from 'axios';
           method: "POST", data: credentials
         } )
         localStorage.setItem("token", data.token);
-        setIsLoggedIn(true)
-        setUserID(data.user_id)
-        console.log(data)
+        localStorage.setItem("userID", data.user_id);
+        setIsLoggedIn(true);
+        setUserID(data.user_id);
+        fetchCalendar();
+        fetchGroceryList();
       } catch(error) {
         console.log(error)
       }
     }
 
-    function logout () {
-      localStorage.removeItem("token")
-      setIsLoggedIn(false)
-      setUserID(0)
+      function logout () {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userID");
+      setIsLoggedIn(false);
+      setUserID(0);
+      fetchCalendar();
+      fetchGroceryList();
     }
 
     //fetch calendar from database
@@ -87,15 +87,14 @@ import axios from 'axios';
       };  
   
     // add a meal & associated groceries
-    //need userID (currently missing), day, meal_type, meal_name & meal_img_url
-    const handleAddMeal = async (userID, day, meal_type, recipe, ingredients) => {
-      console.log(`Logging from handleAddMeal, ${userID}, ${day}, ${meal_type}, ${recipe.title}, ${recipe.image}, ${recipe.id}`)
+    //sent up with these: selectedDay, selectedMealType, selectedRecipe, ingredients
+    const handleAddMeal = async ( day, meal_type, recipe, ingredients) => {
       try {
       const results = await fetch("http://localhost:3001/api/calendar", {
         method: "POST",
         headers: { "Content-Type": "application/json", "authorization": `Bearer ${localStorage.getItem("token")}`
         },
-        body: JSON.stringify({ userID, day, meal_type, meal_name: recipe.title, meal_img_url: recipe.image, dbID: recipe.id  }),
+        body: JSON.stringify({ userID: userID, day: day, meal_type: meal_type, meal_name: recipe.title, meal_img_url: recipe.image, dbID: recipe.id  }),
       })
       const response = await results.json();
       console.log(response)
@@ -179,69 +178,75 @@ const handleDeleteMeal = (mealId) => {
 
   return (
     <div className="app">
+
       <nav>
         {!isLoggedIn 
         ? <Link to="/login">Log in</Link>
         : <div><Link to="/">Meal calendar </Link><button onClick={logout}>Log out</button></div>}
       </nav>
-      <Routes>
-        <Route path="/" element={
       <AuthContext.Provider value={authObj}>
-      <header className="header">
-        {/*  <h1 className="app-name"><img className="app-name-image" src="/app-name.png" alt="App Name" /></h1>
-         <div className="logo-center"><img className="logo-image" src="/logo.png" alt="logo" /></div> */}
-         <button className="add-recipe-btn" onClick={() => setShowPopup(true)}>
-           Search Recipes
-          </button>
-      </header>
-      <main className="main-content">
-          <Calendar mealPlan={calendar} onDeleteMeal={handleDeleteMeal}/>
-          <GroceryList
-            onShowShoppingList= { () => setShowShoppingList(true)}
-            ingredients={groceryList}
-            onToggleComplete={handleToggleComplete}
-            viewMode={viewMode}
-            onDeleteItem={handleDeleteGroceryItem}
-          />
-      </main>
+      <Routes>
+        
+        <Route path="/" element={
+          
+          <div>
+            <header className="header">
+              {/*  <h1 className="app-name"><img className="app-name-image" src="/app-name.png" alt="App Name" /></h1>
+              <div className="logo-center"><img className="logo-image" src="/logo.png" alt="logo" /></div> */}
+              <button className="add-recipe-btn" onClick={() => setShowPopup(true)}>
+                Search Recipes
+              </button>
+            </header>
+            <main className="main-content">
+              <Calendar mealPlan={calendar} onDeleteMeal={handleDeleteMeal}/>
+              <GroceryList
+                onShowShoppingList= { () => setShowShoppingList(true)}
+                ingredients={groceryList}
+                onToggleComplete={handleToggleComplete}
+                onDeleteItem={handleDeleteGroceryItem}
+              />
+            </main>
 
-      {showPopup && (
-         <RecipeSearch
-           onClose={() => setShowPopup(false)}
-           onSelectRecipe={(recipe) => {
-             setSelectedRecipe(recipe);
-             setShowPopup(false);
-             setShowMealForm(true);
-           }}
-         />
-      )}
-  
-      {showMealForm && selectedRecipe && (
-       <div className="modal-overlay">
-         <div className="modal-content">
-           <MealForm
-             selectedRecipe={selectedRecipe}
-             onClose={() => setShowMealForm(false)}
-             onAddMeal={handleAddMeal}
-           />
-         </div>
-       </div>
-      )}
+            {showPopup && (
+              <RecipeSearch
+                onClose={() => setShowPopup(false)}
+                onSelectRecipe={(recipe) => {
+                  setSelectedRecipe(recipe);
+                  setShowPopup(false);
+                  setShowMealForm(true);
+                }}
+              />
+            )}
+        
+            {showMealForm && selectedRecipe && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <MealForm
+                  selectedRecipe={selectedRecipe}
+                  onClose={() => setShowMealForm(false)}
+                  onAddMeal={handleAddMeal}
+                />
+              </div>
+            </div>
+            )}
 
-      {showShoppingList && (
-         <ShoppingList
-         ingredients={groceryList}
-         onToggleComplete={handleToggleComplete}
-         onDeleteItem={handleDeleteGroceryItem}
-         onClose={() => setShowShoppingList(false)}
-         />
-       )} 
-       </AuthContext.Provider>}/>
-       <Route path="/login" element={
-        <AuthContext.Provider value={authObj}>
-        <Login/>
-        </AuthContext.Provider>} />
+            {showShoppingList && (
+              <ShoppingList
+              ingredients={groceryList}
+              onToggleComplete={handleToggleComplete}
+              onDeleteItem={handleDeleteGroceryItem}
+              onClose={() => setShowShoppingList(false)} />
+              
+            )}
+            
+            </div>
+            }
+            />
+        <Route path="/login" element={
+              <Login/>
+            } />
        </Routes>
+       </AuthContext.Provider>
       </div>
       
     );

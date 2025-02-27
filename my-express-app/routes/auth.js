@@ -12,19 +12,32 @@ module.exports = router;
 
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
+  const getQuery = `SELECT * FROM auth WHERE username = ?`;
+  const postQuery = `INSERT INTO auth (username, password) VALUES (?, ?)`;
   try {
-    const hash = await bcrypt.hash(
-      password,
-      saltRounds
-    );
-    const query = `INSERT INTO auth (username, password) VALUES (?, ?)`;
-    await connectDB
+    const duplicate = await connectDB
       .promise()
-      .execute(query, [username, hash]);
+      .execute(getQuery, [username]);
+    console.log(duplicate);
+    if (duplicate[0].length > 0) {
+      res.send({
+        message:
+          "the username is already in use, select a different username!",
+      });
+    } else {
+      const hash = await bcrypt.hash(
+        password,
+        saltRounds
+      );
 
-    res.send({
-      message: "Registration successful",
-    });
+      await connectDB
+        .promise()
+        .execute(postQuery, [username, hash]);
+
+      res.send({
+        message: "Registration successful",
+      });
+    }
   } catch (err) {
     res
       .status(400)
