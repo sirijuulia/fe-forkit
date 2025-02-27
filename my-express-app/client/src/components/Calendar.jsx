@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import "./Calendar.css"
+import AuthContext from "../context/AuthContext";
 
 const dayOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const mealTypes = ["Breakfast", "Lunch", "Dinner"];
 
 const Calendar = ({ mealPlan, onDeleteMeal }) => {
     console.log("Calendar received:", mealPlan);
+    const auth = useContext(AuthContext)
 /* 
     if (!Array.isArray(mealPlan) || mealPlan.length === 0) {
         return <p>No meals found in calendar</p>;

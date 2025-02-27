@@ -1,117 +1,154 @@
 const express = require("express");
 const router = express.Router();
 const connectDB = require("../model/database"); // Importa la conexión
+const axios = require("axios");
+
+const userMustBeLoggedIn = require("../guards/userMustBeLoggedIn");
 
 // guardar una comida en el calendario
-//to add to calendar, need day, meal_type, meal_name & meal_img_url
-router.post("/calendar", async (req, res) => {
-  const {
-    day,
-    dbID,
-    meal_type,
-    meal_name,
-    meal_img_url,
-  } = req.body;
+//to add to calendar, need userID, day, meal_type, meal_name & meal_img_url
+router.post(
+  "/calendar",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    const {
+      userID,
+      day,
+      dbID,
+      meal_type,
+      meal_name,
+      meal_img_url,
+    } = req.body;
 
-  try {
-    const query = `
-            INSERT INTO calendar (day, dbID, meal_type, meal_name, meal_img_url) 
-            VALUES (?, ?, ?, ?, ?)`;
-
-    const result = await connectDB
-      .promise()
-      .execute(query, [
-        day,
-        dbID,
-        meal_type,
-        meal_name,
-        meal_img_url,
-      ]);
-    const [updatedCalendar] = await connectDB
-      .promise()
-      .execute(
-        "SELECT * FROM calendar ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')"
-      );
-    Promise.all([result, updatedCalendar]).then(
-      (values) =>
-        res.status(200).send({
-          result: values[0],
-          updatedCalendar: values[1],
-        })
+    console.log(
+      "Logging from router",
+      userID,
+      day,
+      meal_type,
+      meal_name,
+      meal_img_url,
+      dbID
     );
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error });
+
+    try {
+      const query = `
+            INSERT INTO calendar (userID, day, dbID, meal_type, meal_name, meal_img_url) 
+            VALUES (?, ?, ?, ?, ?, ?)`;
+
+      const result = await connectDB
+        .promise()
+        .execute(query, [
+          userID,
+          day,
+          dbID,
+          meal_type,
+          meal_name,
+          meal_img_url,
+        ]);
+      const [updatedCalendar] = await connectDB
+        .promise()
+        .execute(
+          "SELECT * FROM calendar ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')"
+        );
+      Promise.all([result, updatedCalendar]).then(
+        (values) =>
+          res.status(200).send({
+            result: values[0],
+            updatedCalendar: values[1],
+          })
+      );
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error });
+    }
   }
-});
+);
 
 // obtener el calendario completo
-router.get("/calendar", async (req, res) => {
-  try {
-    const [result] = await connectDB
-      .promise()
-      .execute(
-        "SELECT * FROM calendar ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')"
-      );
-    res.status(200).json(result);
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error });
+router.get(
+  "/calendar",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    try {
+      const [result] = await connectDB
+        .promise()
+        .execute(
+          "SELECT * FROM calendar ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')"
+        );
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error });
+    }
   }
-});
+);
 
 // guardar un item en la lista de compras
 //to add to grocery_list, need name, quantity_num, quantity_measure & mealID
-router.post("/grocery-list", async (req, res) => {
-  const { item_name, quantity, mealID } =
-    req.body;
-  const name_lowercase = item_name.toLowerCase();
+router.post(
+  "/grocery-list",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    const {
+      userID,
+      item_name,
+      quantity,
+      mealID,
+    } = req.body;
+    const name_lowercase =
+      item_name.toLowerCase();
 
-  try {
-    const query = `
-            INSERT INTO grocery_list (item_name, quantity, mealID, completed) 
-            VALUES (?,  ?, ?, false)
+    try {
+      const query = `
+            INSERT INTO grocery_list (userID, item_name, quantity, mealID, completed) 
+            VALUES (?, ?,  ?, ?, false)
         `;
 
-    await connectDB
-      .promise()
-      .execute(query, [
-        name_lowercase,
-        quantity,
-        mealID,
-      ]);
-    res
-      .status(200)
-      .json({ message: "Item in grocery list" });
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error });
+      await connectDB
+        .promise()
+        .execute(query, [
+          userID,
+          name_lowercase,
+          quantity,
+          mealID,
+        ]);
+      res.status(200).json({
+        message: "Item in grocery list",
+      });
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error });
+    }
   }
-});
+);
 
 // obtener la lista de compras
-router.get("/grocery-list", async (req, res) => {
-  try {
-    const [result] = await connectDB
-      .promise()
-      .execute(
-        "SELECT g.*, c.meal_name, c.meal_img_url, c.day FROM grocery_list AS g LEFT JOIN calendar AS c on g.mealID=c.mealID"
-      );
-    //Select a.*, u.username FROM actions AS a LEFT JOIN users AS u on a.userID=u.userID
+router.get(
+  "/grocery-list",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    try {
+      const [result] = await connectDB
+        .promise()
+        .execute(
+          "SELECT g.*, c.meal_name, c.meal_img_url, c.day FROM grocery_list AS g LEFT JOIN calendar AS c on g.mealID=c.mealID"
+        );
 
-    res.status(200).json(result);
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({
-      error: "Failed to fetch grocery list",
-    });
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({
+        error: "Failed to fetch grocery list",
+      });
+    }
   }
-});
+);
 
 // marcar un ítem como completado
 //to complete, need id
 router.put(
   "/grocery-list/:item_name",
+  userMustBeLoggedIn,
   async (req, res) => {
     const item_name = req.params.item_name;
     const { completed } = req.body;
@@ -145,6 +182,7 @@ router.put(
 //to delete from calendar, need mealID
 router.delete(
   "/calendar/:id",
+  userMustBeLoggedIn,
   async (req, res) => {
     const mealId = req.params.id;
 
@@ -172,6 +210,7 @@ router.delete(
 //need item_name
 router.delete(
   "/grocery-list/:item_name",
+  userMustBeLoggedIn,
   async (req, res) => {
     const item_name = req.params.item_name;
 

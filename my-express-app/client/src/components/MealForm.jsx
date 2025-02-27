@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./MealForm.css";
+import AuthContext from "../context/AuthContext";
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const mealTypes = ["Breakfast", "Lunch", "Dinner"];
@@ -10,6 +11,7 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal }) => {
   const [ingredients, setIngredients] = useState([]);
   const [instructions, setInstructions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const auth = useContext(AuthContext)
 
   useEffect(() => {
     if (!selectedRecipe) return;

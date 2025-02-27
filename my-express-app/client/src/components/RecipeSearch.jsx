@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import "./RecipeSearch.css";
+import AuthContext from "../context/AuthContext";
 
 const RecipeSearch = ({ onClose, onSelectRecipe }) => {
     const [query, setQuery] = useState(""); // Search input
     const [recipes, setRecipes] = useState([]); // Store API results
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const auth = useContext(AuthContext);
 
     // Fetch recipes from TheMealDB via our backend
     const fetchRecipes = async () => {

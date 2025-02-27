@@ -8,6 +8,17 @@ DROP TABLE IF EXISTS grocery_list;
 SET foreign_key_checks = 1;
 
 --
+-- Create authentication table
+--
+
+CREATE TABLE auth (
+    userID INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
+
+);
+
+--
 -- Create meal calendar table
 --
 CREATE TABLE calendar (
@@ -16,7 +27,9 @@ CREATE TABLE calendar (
     day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
     meal_type ENUM('Breakfast', 'Lunch', 'Dinner') NOT NULL,
     meal_img_url VARCHAR(255),
-    meal_name VARCHAR(255) NOT NULL
+    meal_name VARCHAR(255) NOT NULL,
+    userID INT NOT NULL,
+    FOREIGN KEY (userID) REFERENCES auth(userID) ON DELETE cascade
 );
 
 --
@@ -28,5 +41,7 @@ CREATE TABLE grocery_list (
     quantity VARCHAR(255) DEFAULT "1",              
     completed BOOLEAN DEFAULT false, 
     mealID INT NOT NULL,
-    FOREIGN KEY (mealID) REFERENCES calendar(mealID) ON DELETE cascade     
+    userID INT NOT NULL,
+    FOREIGN KEY (mealID) REFERENCES calendar(mealID) ON DELETE cascade,
+    FOREIGN KEY (userID) REFERENCES auth(userID) ON DELETE cascade     
 );

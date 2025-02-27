@@ -1,4 +1,6 @@
 import React from "react";
+import AuthContext from "../context/AuthContext";
+import { useContext } from "react";
 import "./GroceryList.css"
 
 const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem, onShowShoppingList }) => {
@@ -6,6 +8,8 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem, onShowS
         console.error("GroceryList received a non-array value:", ingredients);
         return <p>Error loading grocery list. Please try again.</p>;
     }
+
+    const auth = useContext(AuthContext)
 
     const uniqueIngredients = ingredients.filter((obj, index, self) => {
         return index === self.findIndex((i) => i.item_name === obj.item_name);})
