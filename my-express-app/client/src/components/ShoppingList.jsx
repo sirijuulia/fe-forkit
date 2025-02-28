@@ -22,7 +22,7 @@ const uniqueIngredients = ingredients.filter((obj, index, self) => {
   return index === self.findIndex((i) => i.item_name === obj.item_name);})
 
 const writeToClipboard = async () => {
-  const ingredientList = ingredients.map((ingredient) =>  `- ${ingredient.item_name} ${ingredient.quantity}\n`)
+  const ingredientList = ingredients.filter((ingredient) => {return !ingredient.completed && !ingredient.hide}).map((ingredient) =>  `- ${ingredient.item_name} ${ingredient.quantity}\n`)
   const ingredientString = ingredientList.sort().join("")
   try {
     await navigator.clipboard.writeText(ingredientString);
