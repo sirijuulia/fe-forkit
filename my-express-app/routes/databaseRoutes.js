@@ -12,7 +12,6 @@ router.post(
   userMustBeLoggedIn,
   async (req, res) => {
     const {
-      userID,
       day,
       dbID,
       meal_type,
@@ -78,12 +77,8 @@ router.post(
   "/grocery-list",
   userMustBeLoggedIn,
   async (req, res) => {
-    const {
-      userID,
-      item_name,
-      quantity,
-      mealID,
-    } = req.body;
+    const { item_name, quantity, mealID } =
+      req.body;
     const name_lowercase =
       item_name.toLowerCase();
     try {
