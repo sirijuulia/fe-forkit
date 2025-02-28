@@ -3,7 +3,7 @@ import "./ShoppingList.css";
 import { useRef } from 'react';
 import generatePDF, { Resolution, Margin } from 'react-to-pdf';
 
-export default function ShoppingList({ ingredients = [], onToggleComplete, onDeleteItem, onClose}) {
+export default function ShoppingList({ ingredients = [], onToggleComplete, onHideItem, onClose}) {
   const targetRef = useRef();
   const options = {
     method: 'open',
@@ -48,7 +48,7 @@ const writeToClipboard = async () => {
                     } else {
                         return 1
                     }}
-                ).map((ingredient) => (
+                ).filter((ingredient) => {return !ingredient.hide}).map((ingredient) => (
                 <div key={ingredient.item_name} className='shopping-list-section'>
                   <li   className={`shopping-list-ingredient ${ingredient.completed ? "completed" : ""}`}>
                         {/* toggle completion */}
@@ -61,7 +61,7 @@ const writeToClipboard = async () => {
                         <span>{ingredient.item_name}</span>
                         {/* delete button */}
                         <button 
-                            onClick={() => onDeleteItem(ingredient.item_name)}
+                            onClick={() => onHideItem(ingredient.item_name)}
                             className="delete-btn"
                         >
                             ·

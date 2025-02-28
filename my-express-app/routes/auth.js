@@ -35,7 +35,8 @@ router.post("/register", async (req, res) => {
         .execute(postQuery, [username, hash]);
 
       res.send({
-        message: "Registration successful",
+        message:
+          "Registration successful - please sign in to use Fork It!",
       });
     }
   } catch (err) {

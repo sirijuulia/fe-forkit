@@ -6,9 +6,9 @@ const axios = require("axios");
 const userMustBeLoggedIn = require("../guards/userMustBeLoggedIn");
 
 // guardar una comida en el calendario
-//to add to calendar, need userID, day, meal_type, meal_name & meal_img_url
+//to add to meals, need userID, day, meal_type, meal_name & meal_img_url
 router.post(
-  "/calendar",
+  "/meals",
   userMustBeLoggedIn,
   async (req, res) => {
     const {
@@ -21,10 +21,10 @@ router.post(
 
     try {
       const putQuery = `
-            INSERT INTO calendar (userID, day, dbID, meal_type, meal_name, meal_img_url) 
+            INSERT INTO meals (userID, day, dbID, meal_type, meal_name, meal_img_url) 
             VALUES (?, ?, ?, ?, ?, ?)`;
       const getQuery =
-        "SELECT * FROM calendar WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
+        "SELECT * FROM meals WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
 
       const result = await connectDB
         .promise()
@@ -36,14 +36,14 @@ router.post(
           meal_name,
           meal_img_url,
         ]);
-      const [updatedCalendar] = await connectDB
+      const [updatedMeals] = await connectDB
         .promise()
         .execute(getQuery, [req.user_id]);
-      Promise.all([result, updatedCalendar]).then(
+      Promise.all([result, updatedMeals]).then(
         (values) =>
           res.status(200).send({
             result: values[0],
-            updatedCalendar: values[1],
+            updatedMeals: values[1],
           })
       );
     } catch (error) {
@@ -54,11 +54,11 @@ router.post(
 );
 // obtener el calendario completo
 router.get(
-  "/calendar",
+  "/meals",
   userMustBeLoggedIn,
   async (req, res) => {
     const query =
-      "SELECT * FROM calendar WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
+      "SELECT * FROM meals WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
     try {
       const [result] = await connectDB
         .promise()
@@ -83,14 +83,13 @@ router.post(
       item_name.toLowerCase();
     try {
       const query = `
-            INSERT INTO grocery_list (userID, item_name, quantity, mealID, completed) 
-            VALUES (?, ?,  ?, ?, false)
+            INSERT INTO grocery_list (item_name, quantity, mealID, completed, hide) 
+            VALUES (?,  ?, ?, false, false)
         `;
 
       await connectDB
         .promise()
         .execute(query, [
-          req.user_id,
           name_lowercase,
           quantity,
           mealID,
@@ -105,13 +104,63 @@ router.post(
   }
 );
 
+router.post(
+  "/instructions",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    const { step, instruction_text, mealID } =
+      req.body;
+    try {
+      const query = `
+            INSERT INTO instructions (step, instruction_text, mealID) 
+            VALUES (?, ?, ?)
+        `;
+
+      await connectDB
+        .promise()
+        .execute(query, [
+          step,
+          instruction_text,
+          mealID,
+        ]);
+      res.status(200).json({
+        message: "Instruction saved",
+      });
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error });
+    }
+  }
+);
+
 // obtener la lista de compras
 router.get(
   "/grocery-list",
   userMustBeLoggedIn,
   async (req, res) => {
     const query =
-      "SELECT g.*, c.meal_name, c.meal_img_url, c.day FROM grocery_list AS g LEFT JOIN calendar AS c on g.mealID=c.mealID WHERE g.userID = ?";
+      "SELECT g.*, m.meal_name, m.meal_img_url, m.day FROM grocery_list AS g LEFT JOIN meals AS m on g.mealID=m.mealID WHERE m.userID = ?";
+    try {
+      const [result] = await connectDB
+        .promise()
+        .execute(query, [req.user_id]);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({
+        error: "Failed to fetch grocery list",
+      });
+    }
+  }
+);
+
+// obtener la lista de compras
+router.get(
+  "/instructions",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    const query =
+      "SELECT i.*, m.meal_name, m.meal_img_url, m.day FROM instructions AS i LEFT JOIN meals AS m on i.mealID=c.mealID WHERE m.userID = ?";
     try {
       const [result] = await connectDB
         .promise()
@@ -127,21 +176,21 @@ router.get(
 );
 
 // marcar un ítem como completado
-//to complete, need id
+//to update, need row, value (&id)
 router.put(
   "/grocery-list/:item_name",
   userMustBeLoggedIn,
   async (req, res) => {
     const item_name = req.params.item_name;
-    const { completed } = req.body;
-    const completedValue = completed ? 1 : 0;
+    const { row, value } = req.body;
+    const updatedValue = value ? 1 : 0;
 
     try {
-      const query = `UPDATE grocery_list SET completed = ? WHERE item_name = ?`;
+      const query = `UPDATE grocery_list SET ${row} = ? WHERE item_name = ?`;
       const [result] = await connectDB
         .promise()
         .execute(query, [
-          completedValue,
+          updatedValue,
           item_name,
         ]);
 
@@ -161,15 +210,15 @@ router.put(
 );
 
 // delete a meal from the calendar
-//to delete from calendar, need mealID
+//to delete from meals, need mealID
 router.delete(
-  "/calendar/:id",
+  "/meals/:id",
   userMustBeLoggedIn,
   async (req, res) => {
     const mealId = req.params.id;
 
     try {
-      const query = `DELETE FROM calendar WHERE mealID = ?`;
+      const query = `DELETE FROM meals WHERE mealID = ?`;
       const [result] = await connectDB
         .promise()
         .execute(query, [mealId]);

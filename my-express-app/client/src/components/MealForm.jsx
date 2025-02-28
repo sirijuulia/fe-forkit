@@ -41,7 +41,7 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal }) => {
 
     // Add meal to calendar
     //to add to calendar, need day, meal_type, meal_name & meal_img_url
-    onAddMeal(selectedDay, selectedMealType, selectedRecipe, ingredients);
+    onAddMeal(selectedDay, selectedMealType, selectedRecipe, ingredients, instructions);
 
     // Save to database
     // fetch("http://localhost:3001/api/calendar", {

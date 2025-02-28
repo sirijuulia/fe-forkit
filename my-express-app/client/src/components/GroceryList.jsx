@@ -3,7 +3,7 @@ import AuthContext from "../context/AuthContext";
 import { useContext } from "react";
 import "./GroceryList.css"
 
-const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem, onShowShoppingList }) => {
+const GroceryList = ({ ingredients = [], onToggleComplete, onHideItem, onShowShoppingList }) => {
     if (!Array.isArray(ingredients)) {
         console.error("GroceryList received a non-array value:", ingredients);
         return <p>Error loading grocery list. Please try again.</p>;
@@ -25,7 +25,7 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem, onShowS
                     } else {
                         return 1
                     }}
-                ).map((item) => (
+                ).filter((ingredient) => {return !ingredient.hide}).map((item) => (
                     <li key={item.item_name} className={`grocery-item ${item.completed ? "completed" : ""}`}>
                         {/* toggle completion */}
                         <input 
@@ -37,7 +37,7 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onDeleteItem, onShowS
                         <span>{item.item_name}</span>
                         {/* delete button */}
                         <button 
-                            onClick={() => onDeleteItem(item.item_name)}
+                            onClick={() => onHideItem(item.item_name)}
                             className="delete-btn"
                         >
                             ·

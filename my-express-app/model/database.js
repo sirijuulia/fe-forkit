@@ -30,7 +30,7 @@ connectDB.connect(function (err) {
 
   // comprobar si la tabla `calendar` ya existe para evitar reinicializar la base de datos
   connectDB.query(
-    "SHOW TABLES LIKE 'calendar';",
+    "SHOW TABLES LIKE 'grocery_list';",
     function (err, results) {
       if (err) {
         console.error(

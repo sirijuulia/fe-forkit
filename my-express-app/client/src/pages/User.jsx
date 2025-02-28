@@ -19,15 +19,15 @@ export default function User() {
     const [showShoppingList, setShowShoppingList] = useState(false);
     const [groceryList, setGroceryList] = useState([]);
 
-    // fetch calendar & grocery list on load
+    // fetch meal data & grocery list on load
     useEffect(() => {
-        fetchCalendar();
+        fetchMeals();
         fetchGroceryList();
       }, []);
 
-    //fetch calendar from database
-    const fetchCalendar = () => {
-        fetch("http://localhost:3001/api/calendar", {
+    //fetch meal data from database
+    const fetchMeals = () => {
+        fetch("http://localhost:3001/api/meals", {
           headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
         })
           .then((res) => res.json())
@@ -39,7 +39,7 @@ export default function User() {
               console.warn("No meals found in calendar!", data);
             }
           })
-          .catch((error) => console.error("Error fetching calendar:", error));
+          .catch((error) => console.error("Error fetching meals:", error));
     };
   
         // fetch grocery list from the database
@@ -61,9 +61,9 @@ export default function User() {
     
       // add a meal & associated groceries
       //sent up with these: selectedDay, selectedMealType, selectedRecipe, ingredients
-      const handleAddMeal = async ( day, meal_type, recipe, ingredients) => {
+      const handleAddMeal = async ( day, meal_type, recipe, ingredients, instructions) => {
         try {
-        const results = await fetch("http://localhost:3001/api/calendar", {
+        const results = await fetch("http://localhost:3001/api/meals", {
           method: "POST",
           headers: { "Content-Type": "application/json", "authorization": `Bearer ${localStorage.getItem("token")}`
           },
@@ -72,9 +72,9 @@ export default function User() {
         const response = await results.json();
         console.log(response)
         const mealID = response.result[0].insertId;
-        const newCalendar = response.updatedCalendar;
+        const newCalendar = response.updatedMeals;
   
-        const promises = ingredients.map((item) =>
+        const ingredientPromises = ingredients.map((item) =>
           fetch("http://localhost:3001/api/grocery-list", {
             method: "POST",
             headers: { "Content-Type": "application/json",  "authorization": `Bearer ${localStorage.getItem("token")}`},
@@ -83,7 +83,16 @@ export default function User() {
             console.error(`Error saving ingredient ${item.name}:`, error)
           )
         );
-        Promise.all(promises)
+        const instructionPromises = instructions.map((item, index) =>
+          fetch("http://localhost:3001/api/instructions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json",  "authorization": `Bearer ${localStorage.getItem("token")}`},
+            body: JSON.stringify({ mealID: mealID, step: (index+1), instruction_text: item }),
+          }).catch((error) =>
+            console.error(`Error saving instructions`, error)
+          )
+        );
+        Promise.all([...ingredientPromises, ...instructionPromises])
         .then(() => {
           setCalendar(newCalendar)
           fetchGroceryList(); // Refresh grocery list
@@ -105,14 +114,14 @@ export default function User() {
         // )
   
       // toggle grocery item completion
+      //to update, need row, value (&id)
       const handleToggleComplete = (item_name) => {
         const itemToToggle = groceryList.filter((item) => item.item_name === item_name);
         const newState = !itemToToggle[0].completed; 
-        console.log(newState);
         fetch(`http://localhost:3001/api/grocery-list/${item_name}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "authorization": `Bearer ${localStorage.getItem("token")}` },
-          body: JSON.stringify({ completed: newState }),
+          body: JSON.stringify({ value: newState, row: "completed" }),
         })
           .then(() => fetchGroceryList())
           .catch((error) =>
@@ -121,26 +130,30 @@ export default function User() {
         }
   
       // function to delete a grocery item
-  const handleDeleteGroceryItem = (item_name) => {
+  const handleHideGroceryItem = (item_name) => {
+    const itemToHide = groceryList.filter((item) => item.item_name === item_name);
+    const newState = !itemToHide[0].hide; 
+    console.log(newState)
     fetch(`http://localhost:3001/api/grocery-list/${item_name}`, {
-        method: "DELETE", headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "authorization": `Bearer ${localStorage.getItem("token")}` },
+      body: JSON.stringify({ value: newState, row: "hide" }),
     })
-    .then(res => res.json())
-    .then(() => {
-      fetchGroceryList();
-    })
-    .catch(error => console.error("Error deleting grocery item:", error));
-  };
+      .then(() => fetchGroceryList())
+      .catch((error) =>
+        console.error("Error updating grocery list:", error)
+      );
+    }
   
   //function to delete meal
   const handleDeleteMeal = (mealId) => {
-    fetch(`http://localhost:3001/api/calendar/${mealId}`, {
+    fetch(`http://localhost:3001/api/meals/${mealId}`, {
         method: "DELETE", headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
       })
       .then(res => res.json())
       .then(() => {
         fetchGroceryList();
-        fetchCalendar();
+        fetchMeals();
         })
     .catch(error => console.error("Error deleting meal:", error));
   };
@@ -161,7 +174,7 @@ export default function User() {
         onShowShoppingList= { () => setShowShoppingList(true)}
         ingredients={groceryList}
         onToggleComplete={handleToggleComplete}
-        onDeleteItem={handleDeleteGroceryItem}
+        onHideItem={handleHideGroceryItem}
       />
     </main>
 
@@ -192,7 +205,7 @@ export default function User() {
       <ShoppingList
       ingredients={groceryList}
       onToggleComplete={handleToggleComplete}
-      onDeleteItem={handleDeleteGroceryItem}
+      onHideItem={handleHideGroceryItem}
       onClose={() => setShowShoppingList(false)} />
       
     )}
