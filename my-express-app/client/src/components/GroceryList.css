@@ -14,19 +14,25 @@
     overflow-y: auto;
 }
 
+.grocery-list {
+    width: 90%;
+}
+
 .shopping-list-button {
     background-color: #e8f1ef;
     align-self: last baseline;
     width: 1.5rem;
     aspect-ratio: 1/1;
     margin: 0.5rem;
+    border-radius: 0.3rem;
     text-align: center;
     background-image: url("../assets/icons8-expand-96.png");
     background-size: cover;
+    transition: background 0.2s;
 }
 
 .shopping-list-button:hover {
-    background-color: #53796e;
+    background-color: white;
     cursor: pointer;
 
 }

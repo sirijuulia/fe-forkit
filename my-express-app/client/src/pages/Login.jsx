@@ -4,6 +4,7 @@ import "./login.css"
 import AuthContext from '../context/AuthContext'
 import axios from 'axios'
 
+
 export default function Login() {
     const auth = useContext(AuthContext);
     const login = async (data) => {
@@ -30,7 +31,7 @@ export default function Login() {
                 method:"POST",
                 data: credentials
             })
-            if (data.message === "Registration successful") {
+            if (data.message === "Registration successful - please sign in to use Fork It!") {
                 setHaveAccount(true); }
             setCredentials({username: "", password: ""})
             alert(data.message)
@@ -44,7 +45,6 @@ export default function Login() {
 
     async function handleSignIn (e) {
         e.preventDefault();
-        console.log("now in handleSignIn")
         if (credentials.username && credentials.password) {
             try {
                 login(credentials)
@@ -57,32 +57,40 @@ export default function Login() {
     }
 
   return (
+    <div className='login-container'>
     <div className='login-page'>
         {haveAccount 
         ? 
-        <div>
-            <button onClick={() => setHaveAccount(!haveAccount)}>Don't have an account? Register!</button>
-        <form onSubmit={handleSignIn}>
-            <h2>Sign in!</h2>
+        <div className='login-content'>
+        <form className='login-form' onSubmit={handleSignIn}>
+            <h2>Welcome back!</h2>
+            <h3>Sign in to access your delicious recipes</h3>
+            <div className='login-inputs'>
             <label htmlFor='usernameSignIn'>Username</label>
             <input name="username" id="usernameSignIn" type="text" value={credentials.username} onChange={handleChange}/>
             <label htmlFor='passwordSignIn'>Password</label>
             <input name="password" id="passwordSignIn" type="password" value={credentials.password} onChange={handleChange}/>
-            <button>Submit</button>
+            </div>
+            <button className='submit-btn'>Log in</button>
+            
         </form> 
+        <button className='swap-login-view' onClick={() => setHaveAccount(!haveAccount)}>Don't have an account? Register!</button>
         </div>
         :
-        <div>
-        <button onClick={() => setHaveAccount(!haveAccount)}>Already have an account? Log in!</button>
-        <form onSubmit={handleRegistration}>
+        <div className='login-content'>
+        <form className='login-form' onSubmit={handleRegistration}>
             <h2>Register</h2>
+            <div className='login-inputs'>
             <label htmlFor='usernameReg'>Username</label>
             <input id="usernameReg" type="text" name="username" value={credentials.username} onChange={handleChange}/>
             <label htmlFor='passwordReg'>Password</label>
             <input id="passwordReg" type="password"name="password" value={credentials.password} onChange={handleChange}/>
-            <button>Submit</button>
+            </div>
+            <button className='submit-btn'>Submit</button>
         </form> 
+        <button className='swap-login-view' onClick={() => setHaveAccount(!haveAccount)}>Already have an account? Log in!</button>
         </div>}
+    </div>
     </div>
   )
 }

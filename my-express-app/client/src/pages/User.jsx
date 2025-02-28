@@ -33,7 +33,7 @@ export default function User() {
           .then((res) => res.json())
           .then((data) => {
               // console.log("📅 Raw Calendar Data:", data); 
-            if (Array.isArray(data) && data.length > 0) {
+            if (Array.isArray(data)) {
               setCalendar(data);
             } else {
               console.warn("No meals found in calendar!", data);
@@ -139,12 +139,8 @@ export default function User() {
       })
       .then(res => res.json())
       .then(() => {
-        fetch("http://localhost:3001/api/calendar")  // re-fetch calendar after deleting
-            .then(res => res.json())
-            .then(updatedData => setCalendar(updatedData));
-        })
-        .then(() => {
-          fetchGroceryList()
+        fetchGroceryList();
+        fetchCalendar();
         })
     .catch(error => console.error("Error deleting meal:", error));
   };

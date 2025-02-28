@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react'
-import Calendar from './components/Calendar';
 import './App.css'
-import RecipeSearch from './components/RecipeSearch';
-import MealForm from './components/MealForm';
-import GroceryList from './components/GroceryList';
-import ShoppingList from './components/ShoppingList';
 import AuthContext from './context/AuthContext';
 import { Link, Routes, Route } from 'react-router-dom';
 import Login from './pages/login';
 import axios from 'axios';
 import User from './pages/User';
+import IsLoggedIn from './components/IsLoggedIn';
+import { useNavigate } from 'react-router-dom'
 
   function App() {
     const [isLoggedIn, setIsLoggedIn] = useState( !!localStorage.getItem("token"));
-    const [userID, setUserID] = useState(localStorage.getItem("userID"));
-    const authObj = {isLoggedIn, login, logout, userID}
+    const authObj = {isLoggedIn, login, logout}
+    const navigate = useNavigate();
   
     async function login (credentials) {
       try {
@@ -22,11 +19,8 @@ import User from './pages/User';
           method: "POST", data: credentials
         } )
         localStorage.setItem("token", data.token);
-        localStorage.setItem("userID", data.user_id);
         setIsLoggedIn(true);
-        setUserID(data.user_id);
-        // fetchCalendar();
-        // fetchGroceryList();
+        navigate("/")
       } catch(error) {
         console.log(error)
       }
@@ -34,9 +28,7 @@ import User from './pages/User';
 
       function logout () {
       localStorage.removeItem("token");
-      localStorage.removeItem("userID");
       setIsLoggedIn(false);
-      setUserID(0);
       // setCalendar([]);
       // setGroceryList([]);
     }
@@ -46,19 +38,17 @@ import User from './pages/User';
 
       <nav>
         {!isLoggedIn 
-        ? <Link to="/login">Log in</Link>
-        : <div><Link to="/">Meal calendar </Link><button onClick={logout}>Log out</button></div>}
+        ? ""
+        : <button className='logout' onClick={logout}>Log out</button> }
       </nav>
       <AuthContext.Provider value={authObj}>
       <Routes>
-        
-        <Route path="/" element={<User />
-          
-          }
+        <Route path="/" element={<IsLoggedIn><User /></IsLoggedIn>}
             />
         <Route path="/login" element={
               <Login/>
             } />
+        <Route path="/user" element={<IsLoggedIn><User /></IsLoggedIn>} />
        </Routes>
        </AuthContext.Provider>
       </div>
