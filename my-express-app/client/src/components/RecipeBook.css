@@ -1,0 +1,78 @@
+.recipe-book-header {
+    display: flex;
+}
+
+
+.list-btn {
+    position: relative;
+    top: -5px;
+    width: 1.5rem;
+    aspect-ratio: 1/1;
+    border: none;
+    background-color: white;
+    cursor: pointer;
+    background-size: cover;
+    margin: 0 1rem;
+}
+
+.list-btn:hover {
+    opacity: 70%;
+}
+
+.list-btn:active {
+    top: -3px;
+    left: 2px;
+}
+
+.download-btn {
+    background-image: url("../assets/icons8-download-96.png");
+}
+
+.clipboard-btn {
+    background-image: url("../assets/icons8-clipboard-96.png");
+}
+
+.recipe-title-section
+{
+    position: relative;
+    top: -10rem;
+    background-color: rgba(255, 255, 255, 0.696);
+    padding: 1rem;
+    margin-bottom: -2rem;
+
+ }
+
+.img-container {
+    width: 100%;
+    height: 20rem;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.recipe-cover-img {
+    width: 100%;
+    height: auto
+
+}
+
+.recipe-details {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    text-align: left;
+    font-weight: 400;
+}
+
+.recipe-details h3 {
+    margin-bottom: 1rem;
+}
+
+.ingredients-div {
+    grid-column: 1 / 2;
+}
+
+.instructions-div {
+    grid-column: 2/3;
+}

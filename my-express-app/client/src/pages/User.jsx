@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useEffect, useState } from 'react'
 import Calendar from '../components/Calendar';
+import { Link, useNavigate } from 'react-router-dom';
 import '../App.css'
 import './User.css'
 
@@ -8,6 +9,7 @@ import RecipeSearch from '../components/RecipeSearch';
 import MealForm from '../components/MealForm';
 import GroceryList from '../components/GroceryList';
 import ShoppingList from '../components/ShoppingList';
+import RecipeBook from '../components/RecipeBook';
 import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 
@@ -18,6 +20,9 @@ export default function User() {
     const [showMealForm, setShowMealForm] = useState(false);
     const [showShoppingList, setShowShoppingList] = useState(false);
     const [groceryList, setGroceryList] = useState([]);
+    const [viewRecipeBook, setViewRecipeBook] = useState(false);
+    const [recipeBookRecipe, setRecipeBookRecipe] = useState(null);
+    const auth = useContext(AuthContext)
 
     // fetch meal data & grocery list on load
     useEffect(() => {
@@ -128,7 +133,11 @@ export default function User() {
             console.error("Error updating grocery list:", error)
           );
         }
-  
+  const handleDisplayMeal = (mealID) => {
+    setRecipeBookRecipe(mealID);
+    setViewRecipeBook(true);
+
+  }
       // function to delete a grocery item
   const handleHideGroceryItem = (item_name) => {
     const itemToHide = groceryList.filter((item) => item.item_name === item_name);
@@ -146,7 +155,8 @@ export default function User() {
     }
   
   //function to delete meal
-  const handleDeleteMeal = (mealId) => {
+  const handleDeleteMeal = (event, mealId) => {
+    event.stopPropagation();
     fetch(`http://localhost:3001/api/meals/${mealId}`, {
         method: "DELETE", headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
       })
@@ -169,7 +179,7 @@ export default function User() {
       </button>
     </header>
     <main className="main-content">
-      <Calendar mealPlan={calendar} onDeleteMeal={handleDeleteMeal}/>
+      <Calendar mealPlan={calendar} onDeleteMeal={handleDeleteMeal} onDisplayMeal={handleDisplayMeal}/>
       <GroceryList
         onShowShoppingList= { () => setShowShoppingList(true)}
         ingredients={groceryList}
@@ -208,6 +218,14 @@ export default function User() {
       onHideItem={handleHideGroceryItem}
       onClose={() => setShowShoppingList(false)} />
       
+    )}
+
+    {viewRecipeBook && (
+      <RecipeBook recipeID={recipeBookRecipe} recipeList={calendar}
+      onClose={() => {
+        setViewRecipeBook(false);
+        setRecipeBookRecipe(null);
+      }}/>
     )}
     
     </div>

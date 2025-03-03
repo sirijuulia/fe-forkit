@@ -18,10 +18,12 @@ import { useNavigate } from 'react-router-dom'
         const {data} = await axios("/api/auth/login", {
           method: "POST", data: credentials
         } )
+        console.log("This is data", data)
         localStorage.setItem("token", data.token);
         setIsLoggedIn(true);
         navigate("/")
       } catch(error) {
+        alert(error.response.data.message)
         console.log(error)
       }
     }

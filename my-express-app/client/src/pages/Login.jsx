@@ -47,9 +47,11 @@ export default function Login() {
         e.preventDefault();
         if (credentials.username && credentials.password) {
             try {
-                login(credentials)
+                login(credentials);
         } catch (err) {
-            console.log(err.message)
+            console.log("It's this error!")
+            setCredentials({username: "", password: ""})
+            
         } }
         else {
             alert("Please fill in both fields!")

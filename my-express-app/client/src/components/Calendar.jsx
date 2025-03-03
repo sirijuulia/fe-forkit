@@ -5,7 +5,7 @@ import AuthContext from "../context/AuthContext";
 const dayOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const mealTypes = ["Breakfast", "Lunch", "Dinner"];
 
-const Calendar = ({ mealPlan, onDeleteMeal }) => {
+const Calendar = ({ mealPlan, onDisplayMeal, onDeleteMeal }) => {
     console.log("Calendar received:", mealPlan);
     const auth = useContext(AuthContext)
 /* 
@@ -43,14 +43,16 @@ const Calendar = ({ mealPlan, onDeleteMeal }) => {
                                     {mealPlan
                                         .filter(entry => entry.day === day && entry.meal_type === meal)
                                         .map(entry => (
-                                            <div key={entry.mealID} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                                <span>{entry.meal_name}</span>
+                                            <div key={entry.mealID} onClick={() => onDisplayMeal(entry.mealID)} className="calendar-box" >
                                                 <button 
-                                                    onClick={() => onDeleteMeal(entry.mealID)}
-                                                    style={{ border: "none", cursor: "pointer", padding: "0.3px" }}
+                                                    onClick={(e) => onDeleteMeal(e, entry.mealID)}
+                                                    className="calendar-delete-btn"
                                                 >
                                                     ·
-                                                </button>
+                                                </button>                                                
+                                                <span>{entry.meal_name}</span>
+
+                                                <img src={entry.meal_img_url} alt={entry.meal_name} className="calendar-img"/>
                                             </div>
                                         ))}
                                 </td>

@@ -24,7 +24,7 @@ router.post(
             INSERT INTO meals (userID, day, dbID, meal_type, meal_name, meal_img_url) 
             VALUES (?, ?, ?, ?, ?, ?)`;
       const getQuery =
-        "SELECT * FROM meals WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
+        "SELECT * FROM meals WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), FIELD(meal_type, 'Breakfast', 'Lunch', 'Dinner')";
 
       const result = await connectDB
         .promise()
@@ -58,11 +58,31 @@ router.get(
   userMustBeLoggedIn,
   async (req, res) => {
     const query =
-      "SELECT * FROM meals WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')";
+      "SELECT * FROM meals WHERE userID = ? ORDER BY FIELD(day, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), FIELD(meal_type, 'Breakfast', 'Lunch', 'Dinner')";
     try {
       const [result] = await connectDB
         .promise()
         .execute(query, [req.user_id]);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error });
+    }
+  }
+);
+
+//get specific meal data
+router.get(
+  "/meals/:id",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    const mealID = req.params.id;
+    const query =
+      "SELECT * FROM meals WHERE mealID = ?";
+    try {
+      const [result] = await connectDB
+        .promise()
+        .execute(query, [req.params.id]);
       res.status(200).json(result);
     } catch (error) {
       console.error("Database error:", error);
@@ -171,6 +191,45 @@ router.get(
       res.status(500).json({
         error: "Failed to fetch grocery list",
       });
+    }
+  }
+);
+
+//get specific meal data
+router.get(
+  "/grocery-list/:id",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    const mealID = req.params.id;
+    const query =
+      "SELECT * FROM grocery_list WHERE mealID = ?";
+    try {
+      const [result] = await connectDB
+        .promise()
+        .execute(query, [mealID]);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error });
+    }
+  }
+);
+
+router.get(
+  "/instructions/:id",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    const mealID = req.params.id;
+    const query =
+      "SELECT * FROM instructions WHERE mealID = ?";
+    try {
+      const [result] = await connectDB
+        .promise()
+        .execute(query, [mealID]);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error });
     }
   }
 );

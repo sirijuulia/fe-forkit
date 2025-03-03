@@ -62,6 +62,7 @@ td {
     border-radius: 6px;
     padding: 8px 12px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
@@ -95,3 +96,45 @@ td {
 .meal-cell:nth-child(2) div { background: rgba(255, 200, 200, 0.6); } 
 .meal-cell:nth-child(3) div { background: rgba(200, 255, 200, 0.6); } 
 .meal-cell:nth-child(4) div { background: rgba(200, 200, 255, 0.6); } 
+
+.calendar-box {
+    cursor: pointer;
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    gap: "10px";
+    box-sizing: border-box;
+}
+
+.calendar-box:hover {
+    opacity: 80%;
+
+}
+
+.calendar-delete-btn {
+    border: none;
+    position: relative;
+    align-self: last baseline;
+    right: -0.5rem;
+
+    cursor: pointer; 
+    padding: 0.3px }
+
+
+.calendar-delete-btn:hover {
+    background-color: #DDD;
+}
+
+.calendar-box span {
+    position: relative;
+    top: -1rem;
+}
+
+.calendar-img {
+    width: 5rem;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    height: auto;
+    display: block;
+
+}
