@@ -1,6 +1,10 @@
-# MVP PROJECT
+# FE PROJECT
 
 This is a student project for Codeop's fullstack bootcamp.
+
+The application is a MVP project. It has been extended as a Feature Extension Project.
+
+## MVP
 
 This is a web application designed to help users plan their meals for the week and generate a shopping list based on their selections. The goal is to provide an easy to use interface where users can add meals to specific days, track their grocery list, and manage their meal prep efficiently.
 
@@ -11,8 +15,16 @@ The app consists of:
 - A grocery list generator that automatically compiles the ingredients needed.
 - A database-backed system for meal storage and retrieval.
 
+## Feature extension
 
-## Setup 
+The feature extension project introduced the following features:
+
+- authentication using jwt and bcrypt and an axios interceptor
+- a relational database with users, meals, ingredients and instructions
+- a "Shopping List" view with linked ingredient and meal data and PDF & clipboard export options
+- a "Recipe Book" view with meal, ingredient and instruction data and PDF & clipboard export options
+
+## Setup
 
 ### Dependencies
 
@@ -24,10 +36,12 @@ Run `npm install` in the project folder to install dependencies related to Expre
 
 This project uses MySQL, so make sure you have it installed. Run this command to create the tables: `npm run migrate`.
 
-This will set up two tables:
-- calendar (for storing meals)
-- grocery_list (for tracking shopping items)
+This will set up four tables:
 
+- auth (for storing user data)
+- meals (for storing meal overview data)
+- grocery_list (for tracking ingredients)
+- instructions (for storing recipe instructions)
 
 ### Run Your Development Servers
 
@@ -42,13 +56,14 @@ This will set up two tables:
 <img src="my-express-app/client/public/api-endpoints.png" alt="API Endpoints"/>
 
 ### Thoughts on feature extensions
+
 - Drag-and-Drop Calendar: Allow users to move meals around.
 - Nutritional Insights: Show calorie and macro breakdown for meals.
-- Grocery List Export: Enable users to download or email their shopping list.
-- User Authentication: Save personal meal plans and preferences
 
-#### CREDIT 
+#### CREDIT
 
-Built by: Ikram El Malki Zekalmi.
+MVP Built by: Ikram El Malki Zekalmi.
+FE Built by: Siri Pantzar.
+Icons: Icon8
 
-For: CodeOp Fullstack Bootcamp 
+For: CodeOp Fullstack Bootcamp

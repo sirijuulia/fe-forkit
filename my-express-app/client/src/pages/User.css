@@ -33,7 +33,7 @@
 
 .main-content {
     display: flex;
-    
+    justify-content: space-between;
     padding: 30px;
     max-width: 1200px;
     margin: auto;
@@ -42,10 +42,11 @@
 
 .calendar-container, .grocery-list-container {
     flex: 1;
-    padding: 20px;
+    padding: 20px 0;
+    margin: 0 20px;
     border-radius: 10px;
     min-height: 500px; 
-    max-height: 600px; 
+    max-height: 800px; 
     overflow-y: auto;
 }
 

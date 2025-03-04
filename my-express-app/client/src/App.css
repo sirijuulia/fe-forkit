@@ -40,17 +40,17 @@
   right: 1.5rem;
   font-size: 1rem;
   font-weight: 600;
-  background-color:  #ef9ea5;
+  background: #ca958c;
+  color: white;
   border: none;
   padding: 0.5rem;
   border-radius: 0.3rem;
   cursor: pointer;
-  color: #333;
   transition: background 0.2s;
 }
 
 .logout:hover {
-  background-color:#c65d60;
+  background: #c65d60;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 

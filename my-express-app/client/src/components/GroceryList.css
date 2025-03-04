@@ -6,11 +6,10 @@
     border-radius: 12px;
     width: 120%;
     max-width: 600px;
-    margin: 20px auto;
+    margin: 0 auto;
     box-shadow: 0 4px 10px #2e4248;
     text-align: center;
     font-family: 'Arial', sans-serif;
-    max-height: 600px; 
     overflow-y: auto;
 }
 
@@ -29,6 +28,35 @@
     background-image: url("../assets/icons8-expand-96.png");
     background-size: cover;
     transition: background 0.2s;
+}
+
+.top-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.reset-btn {
+    background-image: url("../assets/icons8-reset-96.png");
+    background-color: #e8f1ef;
+    align-self: first baseline;
+    width: 1.5rem;
+    aspect-ratio: 1/1;
+    margin: 0.5rem;
+    border-radius: 0.3rem;
+    text-align: center;
+    background-size: cover;
+    transition: background 0.2s;
+}
+
+.reset-btn:hover {
+        background-color: white;
+        cursor: pointer;
+    
+}
+
+.prompt-reset {
+    background-color: red;
 }
 
 .shopping-list-button:hover {

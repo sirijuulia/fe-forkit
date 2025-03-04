@@ -2,9 +2,10 @@ import React from 'react'
 import { useState, useEffect, useRef } from 'react'
 import "./RecipeBook.css";
 import generatePDF, { Resolution, Margin } from 'react-to-pdf';
+import API from '../interceptors/AxiosInstance';
 
 
-export default function RecipeBook({recipeID, onClose, recipeList}) {
+export default function RecipeBook({recipeID, onClose, recipeList, onDisplayMeal}) {
       const targetRef = useRef();
       const options = {
         method: 'open',
@@ -19,18 +20,16 @@ export default function RecipeBook({recipeID, onClose, recipeList}) {
             fetchMeal(recipeID);
             fetchIngredients(recipeID);
             fetchInstructions(recipeID);
-          }, []);
+          }, [recipeID]);
 
     const [meal, setMeal] = useState([]);
     const [ingredients, setIngredients] = useState([]);
-    const [instructions, setInstructions] = useState([])
+    const [instructions, setInstructions] = useState([]);
+    let currentIndex = recipeList.findIndex((recipe) => {return recipe.mealID === recipeID}); 
     const fetchMeal = async (id) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/meals/${id}`, {
-                headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
-            })
-            const data = await response.json();
-            setMeal(data[0]);
+            const data = await API.get(`http://localhost:3001/api/meals/${id}`)
+            setMeal(data.data[0]);
         } catch (err) {
             console.error("Error fetching meal data", err)
         }
@@ -38,11 +37,8 @@ export default function RecipeBook({recipeID, onClose, recipeList}) {
 
     const fetchIngredients = async (id) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/grocery-list/${id}`, {
-                headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
-            })
-            const data = await response.json();
-            setIngredients(data)
+            const data = await API.get(`http://localhost:3001/api/grocery-list/${id}`)
+            setIngredients(data.data)
 
         } catch (err) {
             console.error("Error fetching ingredients", err)
@@ -51,12 +47,9 @@ export default function RecipeBook({recipeID, onClose, recipeList}) {
 
     const fetchInstructions = async (id) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/instructions/${id}`, {
-                headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
-            })
-            const data = await response.json();
-            console.log(data)
-            setInstructions(data)
+            const data = await API.get(`http://localhost:3001/api/instructions/${id}`)
+            console.log(data.data)
+            setInstructions(data.data)
 
         } catch (err) {
             console.error("Error fetching instructions", err)
@@ -64,15 +57,15 @@ export default function RecipeBook({recipeID, onClose, recipeList}) {
     }
 
     const nextRecipe = () => {
-      console.log("Recipe ID", recipeID)
-      console.log(recipeList)
-      const currentIndex = recipeList.findIndex((recipe) => {return recipe.mealID === recipeID}); 
+      if (recipeList[currentIndex+1]){
       const newID = recipeList[currentIndex+1].mealID;
-      console.log("current index", currentIndex);
-      console.log("new entry", recipeList[currentIndex+1]);
-      console.log("new entry ID", newID)
-      return newID;
+      onDisplayMeal(newID);}
+    }
 
+    const previousRecipe = () => {
+      if (recipeList[currentIndex-1]) {
+      const newID = recipeList[currentIndex-1].mealID;
+      onDisplayMeal(newID);}
     }
 
     const writeToClipboard = async () => {
@@ -92,12 +85,17 @@ export default function RecipeBook({recipeID, onClose, recipeList}) {
         <div className="popup-overlay">
           <div className="popup">
           <div className='recipe-book-header'>
-            <button className='list-btn download-btn' title="download" onClick={() => generatePDF(targetRef, options)}></button>
-            <button className='list-btn clipboard-btn' title="copy to clipboard" onClick={writeToClipboard}></button>
-            <button onClick={nextRecipe}>Next recipe</button>
-            <button className="close-btn" title="close" onClick={onClose}>×</button>
+            <div className='export-btns'>
+              <button className='list-btn download-btn' title="download" aria-label="download" onClick={() => generatePDF(targetRef, options)}></button>
+              <button className='list-btn clipboard-btn' title="copy to clipboard" aria-label="copy to clipboard" onClick={writeToClipboard}></button>
             </div>
-            <div className='recipe' ref={targetRef}>
+            <div className='travel-btns'>
+              <button onClick={previousRecipe} aria-label='previous recipe' title="previous recipe" className={`list-btn previous-btn ${!recipeList[currentIndex-1] ? 'hidden-btn' : ""}`}></button>
+              <button onClick={nextRecipe} aria-label='next recipe' title="next recipe" className={`list-btn next-btn ${!recipeList[currentIndex+1] ? 'hidden-btn' : ""}`}></button>
+            </div>
+            <button className="close-btn" title="close" aria-label='close' onClick={onClose}>×</button>
+          </div>
+          <div className='recipe' ref={targetRef}>
                 <div className='img-container'>
             <img className='recipe-cover-img' src={meal?.meal_img_url} alt={`photo of ${meal?.meal_name}`}  />
             </div>

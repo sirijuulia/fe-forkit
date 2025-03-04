@@ -1,3 +1,7 @@
+.calendar-container {
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+}
 .calendar-container h2 {
     font-size: 30px;
     font-weight: bold;
@@ -6,9 +10,32 @@
     text-align: center;
     padding: 10px 40px;
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.4); 
+    background: rgba(255, 255, 255, 0.897); 
+    grid-column: 1 / 6;
 }
 
+.calendar-table {
+    grid-column: 1 / 7;
+}
+
+.recipe-book-button {
+    background-color: #e8f1ef;
+    grid-column: 6/7;
+    width: 1.5rem;
+    aspect-ratio: 1/1;
+    margin: 0.5rem;
+    border-radius: 0.3rem;
+    text-align: center;
+    background-image: url("../assets/icons8-expand-96.png");
+    background-size: cover;
+    transition: background 0.2s;
+}
+
+.recipe-book-button:hover {
+    background-color: white;
+    cursor: pointer;
+
+}
 
 .table-container {
     display: flex;
@@ -56,18 +83,20 @@ td {
 }
 
 
-.meal-cell div {
+.calendar-box {
     background: rgba(234, 230, 222);
     color: #2e4248;
     border-radius: 6px;
     padding: 8px 12px;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
     margin: 5px 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    box-sizing: border-box;
 }
 
 
@@ -97,42 +126,34 @@ td {
 .meal-cell:nth-child(3) div { background: rgba(200, 255, 200, 0.6); } 
 .meal-cell:nth-child(4) div { background: rgba(200, 200, 255, 0.6); } 
 
-.calendar-box {
-    cursor: pointer;
-    display: flex; 
-    flex-direction: column;
-    align-items: center;
-    gap: "10px";
-    box-sizing: border-box;
-}
 
 .calendar-box:hover {
     opacity: 80%;
 
 }
 
+.table-cell-header {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
 .calendar-delete-btn {
     border: none;
-    position: relative;
-    align-self: last baseline;
-    right: -0.5rem;
-
     cursor: pointer; 
-    padding: 0.3px }
+    padding: 0.3px;
+    position: absolute; 
+    right: -0.5rem;
+    top: -0.15rem;
+}
 
 
 .calendar-delete-btn:hover {
     background-color: #DDD;
 }
 
-.calendar-box span {
-    position: relative;
-    top: -1rem;
-}
-
 .calendar-img {
     width: 5rem;
-    aspect-ratio: 1/1;
+    aspect-ratio: 3/2;
     object-fit: cover;
     height: auto;
     display: block;

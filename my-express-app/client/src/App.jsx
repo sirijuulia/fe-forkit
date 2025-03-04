@@ -7,9 +7,10 @@ import axios from 'axios';
 import User from './pages/User';
 import IsLoggedIn from './components/IsLoggedIn';
 import { useNavigate } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode';
 
   function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState( !!localStorage.getItem("token"));
+    const [isLoggedIn, setIsLoggedIn] = useState(checkTokenValidity() );
     const authObj = {isLoggedIn, login, logout}
     const navigate = useNavigate();
   
@@ -18,7 +19,6 @@ import { useNavigate } from 'react-router-dom'
         const {data} = await axios("/api/auth/login", {
           method: "POST", data: credentials
         } )
-        console.log("This is data", data)
         localStorage.setItem("token", data.token);
         setIsLoggedIn(true);
         navigate("/")
@@ -33,6 +33,16 @@ import { useNavigate } from 'react-router-dom'
       setIsLoggedIn(false);
       // setCalendar([]);
       // setGroceryList([]);
+    }
+
+    function checkTokenValidity () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          return false;
+        } 
+        const decoded = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        return decoded.exp > currentTime;
     }
  
   return (

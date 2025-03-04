@@ -1,17 +1,18 @@
 .recipe-book-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: left;
+    margin-bottom: 1rem;
 }
 
 
 .list-btn {
-    position: relative;
-    top: -5px;
-    width: 1.5rem;
+    width: 2rem;
     aspect-ratio: 1/1;
     border: none;
-    background-color: white;
     cursor: pointer;
     background-size: cover;
+    background-color: transparent;
     margin: 0 1rem;
 }
 
@@ -20,16 +21,54 @@
 }
 
 .list-btn:active {
-    top: -3px;
-    left: 2px;
+    top: -4px;
+    left: 1px;
+}
+
+.export-btns {
+    grid-column: 1/2;
+    display: flex;
+    justify-content: baseline;
+}
+
+.travel-btns {
+    grid-column: 2/3;
+    display: flex;
+    justify-content: center;
 }
 
 .download-btn {
+    top: -5px;
+    position: relative;
     background-image: url("../assets/icons8-download-96.png");
 }
 
 .clipboard-btn {
     background-image: url("../assets/icons8-clipboard-96.png");
+    top: -5px;
+    position: relative;
+}
+
+.next-btn {
+    background-image: url("../assets/icons8-next-96.png");
+    top: -5px;
+    position: relative;
+}
+
+.previous-btn {
+    background-image: url("../assets/icons8-left-96.png");
+    top: -5px;
+    position: relative;
+}
+
+.hidden-btn {
+    opacity: 0%;
+    cursor: default;
+}
+
+.hidden-btn:hover {
+    opacity: 0%;
+
 }
 
 .recipe-title-section
@@ -56,6 +95,8 @@
     height: auto
 
 }
+
+
 
 .recipe-details {
     display: grid;

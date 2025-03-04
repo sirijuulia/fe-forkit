@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./MealForm.css";
 import AuthContext from "../context/AuthContext";
+import API from "../interceptors/AxiosInstance";
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const mealTypes = ["Breakfast", "Lunch", "Dinner"];
@@ -19,13 +20,12 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal }) => {
     const fetchRecipeDetails = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:3001/api/recipes/${selectedRecipe.id}`);
-        const data = await response.json();
+        const data = await API.get(`http://localhost:3001/api/recipes/${selectedRecipe.id}`);
         console.log(data)
 
         if (data) {
-          setIngredients(data.ingredients || []);
-          setInstructions(data.instructions || []);
+          setIngredients(data.data.ingredients || []);
+          setInstructions(data.data.instructions || []);
         }
       } catch (error) {
         console.error("Error fetching recipe details:", error);
@@ -42,44 +42,32 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal }) => {
     // Add meal to calendar
     //to add to calendar, need day, meal_type, meal_name & meal_img_url
     onAddMeal(selectedDay, selectedMealType, selectedRecipe, ingredients, instructions);
-
-    // Save to database
-    // fetch("http://localhost:3001/api/calendar", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({
-    //     day: selectedDay,
-    //     meal_type: selectedMealType,
-    //     meal_name: selectedRecipe.title,
-    //     meal_img_url: selectedRecipe.image
-    //   }),
-    // })
-    // .then(response => response.json())
-    // .then(data => console.log("Meal saved:", data))
-    // .catch(error => console.error("Error saving meal:", error));
-
-    // onClose(); // Close the popup after saving
   };
 
   return (
     <div className="popup-overlay">
       <div className="popup">
       <button className="close-btn" onClick={onClose}>×</button>
-        <h2>Assign Recipe</h2>
-        <h3>{selectedRecipe.title}</h3>
+        <h2 >Assign Recipe</h2>
+        <div className="img-container">
         <img 
             src={selectedRecipe.image} 
             alt={selectedRecipe.title} 
-            style={{ width: "200px" }} 
+            className="recipe-cover-img"
         />
+        </div>
+        <div className='recipe-title-section'>
+        <h2 className="recipe-title">{selectedRecipe.title}</h2>
+        </div>
+
 
         {loading ? (
           <p>Loading recipe details...</p>
         ) : (
           <>
-          <div className="details-container">
-            <div className="ingredients-container">
-              <h4>Ingredients:</h4>
+          <div className="recipe-details">
+            <div className="ingredients-div">
+              <h3>Ingredients:</h3>
                 <ul>
                   {ingredients.map((ingredient, index) => (
                     <li key={index}>
@@ -89,8 +77,8 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal }) => {
                 </ul>
             </div>
             
-            <div className="instructions-container">
-              <h4>Instructions:</h4>
+            <div className="instructions-div">
+              <h3>Instructions:</h3>
               <ol>
                   {instructions.map((step, index) => (
                     <li key={index}>{step}</li>
@@ -100,15 +88,15 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal }) => {
           </div>
           
           <div className="select-container">
-            <label>Day:</label>
-            <select value={selectedDay} onChange={(e) => setSelectedDay(e.target.value)}>
+            <label htmlFor="select-day">Day:</label>
+            <select id="select-day" value={selectedDay} onChange={(e) => setSelectedDay(e.target.value)}>
               {daysOfWeek.map((day) => (
                 <option key={day} value={day}>{day}</option>
               ))}
             </select>
 
-            <label>Meal Type:</label>
-            <select value={selectedMealType} onChange={(e) => setSelectedMealType(e.target.value)}>
+            <label htmlFor="select-meal-type">Meal Type:</label>
+            <select id="select-meal-type" value={selectedMealType} onChange={(e) => setSelectedMealType(e.target.value)}>
               {mealTypes.map((meal) => (
                 <option key={meal} value={meal}>{meal}</option>
             ))}
@@ -127,4 +115,3 @@ const MealForm = ({ selectedRecipe, onClose, onAddMeal }) => {
 };
 
 export default MealForm;
-

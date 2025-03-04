@@ -268,6 +268,34 @@ router.put(
   }
 );
 
+router.put(
+  "/grocery-list",
+  userMustBeLoggedIn,
+  async (req, res) => {
+    const { row, value } = req.body;
+    const updatedValue = value ? 1 : 0;
+
+    try {
+      const query = `UPDATE grocery_list SET ${row} = ?`;
+      const [result] = await connectDB
+        .promise()
+        .execute(query, [updatedValue]);
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error });
+      }
+
+      res.status(200).json({
+        message:
+          "Grocery list updated successfully",
+      });
+    } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error });
+    }
+  }
+);
+
 // delete a meal from the calendar
 //to delete from meals, need mealID
 router.delete(

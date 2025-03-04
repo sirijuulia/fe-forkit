@@ -1,9 +1,10 @@
 import React, { useContext } from 'react'
 import { useEffect, useState } from 'react'
-import Calendar from '../components/Calendar';
 import { Link, useNavigate } from 'react-router-dom';
 import '../App.css'
 import './User.css'
+import API from '../interceptors/AxiosInstance';
+import axios from 'axios';
 
 import RecipeSearch from '../components/RecipeSearch';
 import MealForm from '../components/MealForm';
@@ -11,7 +12,8 @@ import GroceryList from '../components/GroceryList';
 import ShoppingList from '../components/ShoppingList';
 import RecipeBook from '../components/RecipeBook';
 import AuthContext from '../context/AuthContext';
-import axios from 'axios';
+import Calendar from '../components/Calendar';
+
 
 export default function User() {
     const [calendar, setCalendar] = useState([]);
@@ -22,6 +24,7 @@ export default function User() {
     const [groceryList, setGroceryList] = useState([]);
     const [viewRecipeBook, setViewRecipeBook] = useState(false);
     const [recipeBookRecipe, setRecipeBookRecipe] = useState(null);
+    const [unresolvedChanges, setUnresolvedChanges] = useState(false);
     const auth = useContext(AuthContext)
 
     // fetch meal data & grocery list on load
@@ -31,77 +34,52 @@ export default function User() {
       }, []);
 
     //fetch meal data from database
-    const fetchMeals = () => {
-        fetch("http://localhost:3001/api/meals", {
-          headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
-        })
-          .then((res) => res.json())
-          .then((data) => {
-              // console.log("📅 Raw Calendar Data:", data); 
-            if (Array.isArray(data)) {
-              setCalendar(data);
-            } else {
-              console.warn("No meals found in calendar!", data);
-            }
-          })
-          .catch((error) => console.error("Error fetching meals:", error));
-    };
+    const fetchMeals = async () => {
+      try {
+        const response = await API.get("/api/meals"); //if it was a post the data would be in an object after the string
+        setCalendar(response.data)
+      } catch (err) {
+        console.error("Error fetching meals", err)
+      }
+     };
   
         // fetch grocery list from the database
-        const fetchGroceryList = () => {
-          fetch("http://localhost:3001/api/grocery-list", {
-            headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              if (Array.isArray(data)) {
-                setGroceryList(data);
-              } else {
-                console.error( data);
-                setGroceryList([]);
-              }
-            })
-            .catch((error) => console.error("Error fetching grocery list:", error));
+        const fetchGroceryList = async () => {
+          try {
+          const response = await API.get("/api/grocery-list")
+          setGroceryList(response.data)
+          } catch (err) {
+            console.error("Error fetching grocery list:", error)
+          }
         };  
     
       // add a meal & associated groceries
       //sent up with these: selectedDay, selectedMealType, selectedRecipe, ingredients
       const handleAddMeal = async ( day, meal_type, recipe, ingredients, instructions) => {
         try {
-        const results = await fetch("http://localhost:3001/api/meals", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "authorization": `Bearer ${localStorage.getItem("token")}`
-          },
-          body: JSON.stringify({ day: day, meal_type: meal_type, meal_name: recipe.title, meal_img_url: recipe.image, dbID: recipe.id  }),
-        })
-        const response = await results.json();
-        console.log(response)
-        const mealID = response.result[0].insertId;
-        const newCalendar = response.updatedMeals;
+          const data = { day: day, meal_type: meal_type, meal_name: recipe.title, meal_img_url: recipe.image, dbID: recipe.id  }
+        const response = await API.post("/api/meals", data)
+        const mealID = response.data.result[0].insertId;
+        const newCalendar = response.data.updatedMeals;
+        const existingChanges = groceryList.some ((item) => item.hide || item.completed )
   
-        const ingredientPromises = ingredients.map((item) =>
-          fetch("http://localhost:3001/api/grocery-list", {
-            method: "POST",
-            headers: { "Content-Type": "application/json",  "authorization": `Bearer ${localStorage.getItem("token")}`},
-            body: JSON.stringify({ mealID: mealID, item_name: item.name, quantity: item.quantity }),
-          }).catch((error) =>
-            console.error(`Error saving ingredient ${item.name}:`, error)
-          )
+        const ingredientPromises = ingredients.map((item) =>{
+          const ingredient = { mealID: mealID, item_name: item.name, quantity: item.quantity };
+          API.post("/api/grocery-list", ingredient);
+        }
         );
-        const instructionPromises = instructions.map((item, index) =>
-          fetch("http://localhost:3001/api/instructions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json",  "authorization": `Bearer ${localStorage.getItem("token")}`},
-            body: JSON.stringify({ mealID: mealID, step: (index+1), instruction_text: item }),
-          }).catch((error) =>
-            console.error(`Error saving instructions`, error)
-          )
+        const instructionPromises = instructions.map((item, index) => {
+          const instruction = { mealID: mealID, step: (index+1), instruction_text: item };
+          API.post("/api/instructions", instruction);
+        }
         );
         Promise.all([...ingredientPromises, ...instructionPromises])
         .then(() => {
-          setCalendar(newCalendar)
+          setCalendar(newCalendar);
           fetchGroceryList(); // Refresh grocery list
-          setShowMealForm(false)}) 
+          setShowMealForm(false);
+          setUnresolvedChanges(existingChanges);
+          })
         .catch((error) =>
           console.error("Error updating grocery list:", error)
         );
@@ -120,18 +98,16 @@ export default function User() {
   
       // toggle grocery item completion
       //to update, need row, value (&id)
-      const handleToggleComplete = (item_name) => {
+      const handleToggleComplete =  async (item_name) => {
         const itemToToggle = groceryList.filter((item) => item.item_name === item_name);
         const newState = !itemToToggle[0].completed; 
-        fetch(`http://localhost:3001/api/grocery-list/${item_name}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", "authorization": `Bearer ${localStorage.getItem("token")}` },
-          body: JSON.stringify({ value: newState, row: "completed" }),
-        })
-          .then(() => fetchGroceryList())
-          .catch((error) =>
-            console.error("Error updating grocery list:", error)
-          );
+        const data = { value: newState, row: "completed" };
+        try{
+        await API.put(`/api/grocery-list/${item_name}`, data);
+        fetchGroceryList();
+        } 
+        catch (error) { console.error("Error updating grocery list:", error)
+        }
         }
   const handleDisplayMeal = (mealID) => {
     setRecipeBookRecipe(mealID);
@@ -139,36 +115,42 @@ export default function User() {
 
   }
       // function to delete a grocery item
-  const handleHideGroceryItem = (item_name) => {
+  const handleHideGroceryItem = async (item_name) => {
     const itemToHide = groceryList.filter((item) => item.item_name === item_name);
     const newState = !itemToHide[0].hide; 
-    console.log(newState)
-    fetch(`http://localhost:3001/api/grocery-list/${item_name}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", "authorization": `Bearer ${localStorage.getItem("token")}` },
-      body: JSON.stringify({ value: newState, row: "hide" }),
-    })
-      .then(() => fetchGroceryList())
-      .catch((error) =>
-        console.error("Error updating grocery list:", error)
-      );
+    const data = { value: newState, row: "hide" };
+    try {
+      await API.put(`/api/grocery-list/${item_name}`, data);
+      fetchGroceryList();
+    } catch (error) {
+      console.error("Error updating grocery list:", error)}
     }
   
   //function to delete meal
-  const handleDeleteMeal = (event, mealId) => {
+  const handleDeleteMeal = async (event, mealId) => {
     event.stopPropagation();
-    fetch(`http://localhost:3001/api/meals/${mealId}`, {
-        method: "DELETE", headers: {"authorization": `Bearer ${localStorage.getItem("token")}`}
-      })
-      .then(res => res.json())
-      .then(() => {
-        fetchGroceryList();
-        fetchMeals();
-        })
-    .catch(error => console.error("Error deleting meal:", error));
+    try {
+    await API.delete(`/api/meals/${mealId}`);
+    fetchGroceryList();
+    fetchMeals();} 
+    catch (error) {console.error("Error deleting meal:", error)}
   };
-  
 
+  //function to reset all complete and hide values to false
+  const resetGroceries = async () => {
+    const resetHide = { value: false, row: "hide" };
+    const resetCompleted = {value: false, row: "completed"}
+    try {
+      const hide = await API.put(`/api/grocery-list`, resetHide);
+      const completed = await API.put(`/api/grocery-list`, resetCompleted);
+      Promise.all([hide, completed])
+        .then(() => {
+          fetchGroceryList();
+          setUnresolvedChanges(false);})
+    } catch (error) {
+      console.error("Error updating grocery list:", error)}
+    }
+  
   return (
     <div>
     <header className="header">
@@ -177,16 +159,8 @@ export default function User() {
       <button className="add-recipe-btn" onClick={() => setShowPopup(true)}>
         Search Recipes
       </button>
+      {unresolvedChanges && <h2>You have unresolved changes!</h2>}
     </header>
-    <main className="main-content">
-      <Calendar mealPlan={calendar} onDeleteMeal={handleDeleteMeal} onDisplayMeal={handleDisplayMeal}/>
-      <GroceryList
-        onShowShoppingList= { () => setShowShoppingList(true)}
-        ingredients={groceryList}
-        onToggleComplete={handleToggleComplete}
-        onHideItem={handleHideGroceryItem}
-      />
-    </main>
 
     {showPopup && (
       <RecipeSearch
@@ -216,18 +190,32 @@ export default function User() {
       ingredients={groceryList}
       onToggleComplete={handleToggleComplete}
       onHideItem={handleHideGroceryItem}
-      onClose={() => setShowShoppingList(false)} />
+      onClose={() => setShowShoppingList(false)} 
+      unresolvedChanges={unresolvedChanges}
+      onReset={resetGroceries}/>
       
     )}
 
     {viewRecipeBook && (
-      <RecipeBook recipeID={recipeBookRecipe} recipeList={calendar}
+      <RecipeBook recipeID={recipeBookRecipe} recipeList={calendar} onDisplayMeal={handleDisplayMeal}
       onClose={() => {
         setViewRecipeBook(false);
         setRecipeBookRecipe(null);
       }}/>
     )}
-    
+
+    <main className="main-content">
+      <Calendar mealPlan={calendar} onDeleteMeal={handleDeleteMeal} onDisplayMeal={handleDisplayMeal}/>
+      <GroceryList
+        onShowShoppingList= { () => setShowShoppingList(true)}
+        ingredients={groceryList}
+        onToggleComplete={handleToggleComplete}
+        onHideItem={handleHideGroceryItem}
+        unresolvedChanges={unresolvedChanges}
+        onReset={resetGroceries}
+      />
+    </main>
+
     </div>
   )
 }

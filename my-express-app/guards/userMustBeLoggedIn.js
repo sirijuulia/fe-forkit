@@ -9,7 +9,8 @@ async function userMustBeLoggedIn(
 ) {
   const token = req.headers[
     "authorization"
-  ].replace(/^Bearer\s/, "");
+  ]?.replace(/^Bearer\s/, "");
+  console.log(token);
   if (!token) {
     res.status(401).send({
       message: "please provide a token",

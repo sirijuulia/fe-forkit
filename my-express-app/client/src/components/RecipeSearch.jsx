@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import "./RecipeSearch.css";
 import AuthContext from "../context/AuthContext";
+import API from "../interceptors/AxiosInstance";
 
 const RecipeSearch = ({ onClose, onSelectRecipe }) => {
     const [query, setQuery] = useState(""); // Search input
@@ -17,11 +18,9 @@ const RecipeSearch = ({ onClose, onSelectRecipe }) => {
         setError(null);
 
         try {
-            const response = await fetch(`http://localhost:3001/api/recipes?query=${query}`);
-            if (!response.ok) throw new Error("Failed to fetch recipes");
-
-            const data = await response.json();
-            setRecipes(data || []);
+            const data = await API.get(`http://localhost:3001/api/recipes?query=${query}`);
+            if (!(data.statusText === "OK")) throw new Error("Failed to fetch recipes");
+            setRecipes(data.data || []);
 
         } catch (err) {
             setError("Error fetching recipes");
@@ -55,7 +54,7 @@ const RecipeSearch = ({ onClose, onSelectRecipe }) => {
                 <div className="recipe-list">
                     {recipes.length > 0 ? (
                         recipes.map((recipe) => (
-                            <div
+                            <button
                                 key={recipe.id}
                                 className="recipe-card"
                                 onClick={() => onSelectRecipe(recipe)}
@@ -66,7 +65,7 @@ const RecipeSearch = ({ onClose, onSelectRecipe }) => {
                                     alt={recipe.title} 
                                     className="recipe-image"
                                 />
-                            </div>
+                            </button>
                         ))
                     ) : (
                         <p className="placeholder-text">Eat like if it was your last day 🍽️</p>
@@ -78,3 +77,4 @@ const RecipeSearch = ({ onClose, onSelectRecipe }) => {
 };
 
 export default RecipeSearch;
+

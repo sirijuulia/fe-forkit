@@ -88,7 +88,7 @@ export default function Login() {
             <label htmlFor='passwordReg'>Password</label>
             <input id="passwordReg" type="password"name="password" value={credentials.password} onChange={handleChange}/>
             </div>
-            <button className='submit-btn'>Submit</button>
+            <button className='submit-btn'>Register</button>
         </form> 
         <button className='swap-login-view' onClick={() => setHaveAccount(!haveAccount)}>Already have an account? Log in!</button>
         </div>}

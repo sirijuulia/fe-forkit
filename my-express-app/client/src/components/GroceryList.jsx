@@ -3,7 +3,7 @@ import AuthContext from "../context/AuthContext";
 import { useContext } from "react";
 import "./GroceryList.css"
 
-const GroceryList = ({ ingredients = [], onToggleComplete, onHideItem, onShowShoppingList }) => {
+const GroceryList = ({ ingredients = [], onToggleComplete, onHideItem, onShowShoppingList, unresolvedChanges, onReset }) => {
     if (!Array.isArray(ingredients)) {
         console.error("GroceryList received a non-array value:", ingredients);
         return <p>Error loading grocery list. Please try again.</p>;
@@ -16,7 +16,10 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onHideItem, onShowSho
 
     return (
         <div className="grocery-list-container">
-            <button onClick={onShowShoppingList} className="shopping-list-button"></button>
+            <div className="top-buttons">
+            <button title="reset" aria-label="reset shopping list" onClick={onReset}  className={`reset-btn ${unresolvedChanges ? "prompt-reset" : ""}`}></button>
+            <button title="expand" aria-label="expand shopping list" onClick={onShowShoppingList} className="shopping-list-button"></button>
+            </div>
             <h2>Grocery List</h2>
             <ul className="grocery-list">
                 {uniqueIngredients.sort(function (a, b) {
@@ -30,6 +33,7 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onHideItem, onShowSho
                         {/* toggle completion */}
                         <input 
                             type="checkbox" 
+                            aria-label={`check ${item.item_name} as complete`}
                             checked={item.completed} 
                             onChange={() => onToggleComplete(item.item_name)}
                         />
@@ -38,6 +42,7 @@ const GroceryList = ({ ingredients = [], onToggleComplete, onHideItem, onShowSho
                         {/* delete button */}
                         <button 
                             onClick={() => onHideItem(item.item_name)}
+                            aria-label={`remove ${item.item_name}`}
                             className="delete-btn"
                         >
                             ·

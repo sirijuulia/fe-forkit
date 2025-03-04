@@ -24,7 +24,8 @@ const Calendar = ({ mealPlan, onDisplayMeal, onDeleteMeal }) => {
 
     return (
         <div className="calendar-container">
-            <h2>Weekly Meal Plan</h2>
+             <h2>Weekly Meal Plan</h2>
+             <button title="expand" aria-label="recipe book" onClick={() => onDisplayMeal(mealPlan[0].mealID)} className="recipe-book-button"></button>
             <table className="calendar-table">
                 <thead>
                     <tr>
@@ -43,15 +44,17 @@ const Calendar = ({ mealPlan, onDisplayMeal, onDeleteMeal }) => {
                                     {mealPlan
                                         .filter(entry => entry.day === day && entry.meal_type === meal)
                                         .map(entry => (
-                                            <div key={entry.mealID} onClick={() => onDisplayMeal(entry.mealID)} className="calendar-box" >
+                                            <div key={entry.mealID} onClick={() => onDisplayMeal(entry.mealID)}  className="calendar-box">
+                                                <div className="table-cell-header">
+                                                <span>{entry.meal_name}</span>
                                                 <button 
                                                     onClick={(e) => onDeleteMeal(e, entry.mealID)}
                                                     className="calendar-delete-btn"
                                                 >
                                                     ·
                                                 </button>                                                
-                                                <span>{entry.meal_name}</span>
-
+                                                
+                                                </div>
                                                 <img src={entry.meal_img_url} alt={entry.meal_name} className="calendar-img"/>
                                             </div>
                                         ))}
