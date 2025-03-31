@@ -1,28 +1,27 @@
 # FE PROJECT
 
-This is a student project for Codeop's fullstack bootcamp.
+This project is a Feature Extension Project for CodeOp's fullstack bootcamp. It extends a student MVP project.
 
-The application is a MVP project. It has been extended as a Feature Extension Project.
+## MVP - by Ikram El Malki Zekalmi
 
-## MVP
+Fork it! is a web application designed to help users plan their meals for the week and generate a shopping list based on their selections. The goal is to provide an easy to use interface where users can add meals to specific days, track their grocery list, and manage their meal prep efficiently.
 
-This is a web application designed to help users plan their meals for the week and generate a shopping list based on their selections. The goal is to provide an easy to use interface where users can add meals to specific days, track their grocery list, and manage their meal prep efficiently.
-
-The app consists of:
-
-- A weekly meal calendar where users can assign meals to each day.
-- A recipe search feature allowing users to find and add meals.
-- A grocery list generator that automatically compiles the ingredients needed.
-- A database-backed system for meal storage and retrieval.
-
-## Feature extension
+## Feature extension - by Siri Pantzar
 
 The feature extension project introduced the following features:
 
-- authentication using jwt and bcrypt and an axios interceptor
-- a relational database with users, meals, ingredients and instructions
+- user authentication & authorisation using jwt and bcrypt and an axios interceptor
+- a fully interconnected personal shopping list and recipe book using a relational MySQL database with users, meals, ingredients and instructions
 - a "Shopping List" view with linked ingredient and meal data and PDF & clipboard export options
-- a "Recipe Book" view with meal, ingredient and instruction data and PDF & clipboard export options
+- a "Recipe Book" view with meal image, ingredient and instruction data and PDF & clipboard export options
+
+### Recipe Book view
+
+![Recipe book modal with an image, a white overlay with Pancakes - Monday Breakfast, ingredients and instructions](image-4.png)
+
+### Shopping List View
+
+![Shopping List modal with export icons on top, and a list of ingredients including amounts, days and recipes](image-2.png)
 
 ## Setup
 
@@ -52,8 +51,7 @@ This will set up four tables:
 - You can test your API in `http://localhost:3001/api`
 
 ## API ENDPOINTS
-
-<img src="my-express-app/client/public/api-endpoints.png" alt="API Endpoints"/>
+![api endpoint table](image-1.png)
 
 ### Thoughts on feature extensions
 
