@@ -17,11 +17,11 @@ The feature extension project introduced the following features:
 
 ### Recipe Book view
 
-![Recipe book modal with an image, a white overlay with Pancakes - Monday Breakfast, ingredients and instructions](image-4.png)
+![Recipe book modal with an image, a white overlay with Pancakes - Monday Breakfast, ingredients and instructions](my-express-app/public/recipe-book.png)
 
 ### Shopping List View
 
-![Shopping List modal with export icons on top, and a list of ingredients including amounts, days and recipes](image-2.png)
+![Shopping List modal with export icons on top, and a list of ingredients including amounts, days and recipes](my-express-app/public/shopping-list.png)
 
 ## Setup
 
@@ -51,7 +51,7 @@ This will set up four tables:
 - You can test your API in `http://localhost:3001/api`
 
 ## API ENDPOINTS
-![api endpoint table](image-1.png)
+![api endpoint table](my-express-app/public/api-endpoints.png)
 
 ### Thoughts on feature extensions
 
